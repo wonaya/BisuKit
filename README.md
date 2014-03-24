@@ -1,4 +1,5 @@
 Notes for BisuKit v0.1a   2014-03-14
+Updated 2014-03-24 : Details on Options, Testing BisuKit
 -----------------------------------------------------------
 
 1. Summary 
@@ -33,38 +34,75 @@ R
 Most errors that occur at this stage are related to the PATH settings.
 Check that all of these softwares are defined in PATH if error persists.
 
-3. Quick-start guide
-====================
+3. Running BisuKit
+==================
+Options:
+  -h, --help            show this help message and exit
 
+  Required for all function:
+    --run=RUN           type of run : tile / methylation_extractor / methylkit / circos
+    --genome=GENOME     name and directory of genome fasta file
+    --context=CONTEXT   CpG, CHH, CHG or all
+    --specie=SPECIE     Specie code, B73, MM9, HG19
+    --cores=CORES       no. of cores to use in running BisKit
+    -q, --quiet         don't print status messages to stdout
 
-4. Running BisuKit 
-=================
+  Tile specific options:
+    These are tile function specific options
+    --window=WINDOW     tiling window size (in bp)
+    --separate_strands=STRANDED    merge forward and reverse strands into tile=no, output for separate strands=yes
+    --path_to_samtools=SAMTOOLS    full path to samtools (eg. /usr/local/bin/samtools)
+    --path_to_multibamcov=MULTIBAMCOV  full path to multiBamCov (eg. /usr/local/bin/bedtools/bin/multiBamCov)
+    --sam=SAMFILE       name and directory of first sam file generated for tiling analysis, use unsorted sam file
+    --circos=CIRCOS     Generate circos format file, default=no
 
+  Methylation extractor specific options:
+    These are Bismark Methylation extractor options
+    --paired=PAIRED     paired-end or single-end reads, yes or no
+    --path_to_bismark=BISMARK full path to bismark (eg. /usr/local/bin/bismark/bismark)
 
-5.  Testing BisuKit
+  MethylKit specific options:
+    These are MethylKit options
+    --sam1=SAMFILE1     name and directory of first sam file generated from bismark for DMR finding
+    --sam2=SAMFILE2     name and directory of second sam file generated from bismark for DMR finding
+    --specie=SPECIE     Specie code, B73, MM9, HG19
+    --largemem=LARGEMEM If using large memory notes = yes (tested on 1TB node)
+    --nonb73=NONB73     For maize genome, if looking at nonB73 genotype (Maize specific)
+
+4. Testing BisuKit
 ==================
 
+Typical tiling analysis, 
+python bisukit.py --run tile --genome HG19.fa --context CpG --window 100 --paired no --cores 12 --sam SRR641618_unsorted.sam --largemem yes --circos yes
 
-6. License
+Typical methylKit/eDMR analysis,
+python bisukit.py --run methylkit --genome HG19.fa --context CpG --paired no --cores 12 --sam1 SRR641618_unsorted.sam --sam2 SRR641628_unsorted.sam --specie HG19 --largemem yes
+
+To run these analyses, you need methylation extracted files. To run Bismark's methylkation extractor
+python bisukit.py --run methylkation_extractor --path_to_bismark /usr/local/bin/bismark/bismark --sam1 SRR641618_unsorted.sam --sam2 SRR641628_unsorted.sam --paired no --cores 2 
+
+5. License
 ===========
 
-This is a open source package. Please cite this paper:
-
-To Be Updated
-
+This is a open source package.
 The program itself may not be modified in any way.
 This license does not allow the use of this program for any commercial purpose. 
 No guarantees are given as to the program's correctness, or the accuracy or completeness of its output.  
-The author accepts no liability for damage or otherwise following from using and interpreting the output of this program.  
+The author accepts no liability for damage or otherwise following from using and interpreting the output of this program.
 The software is supplied "as is", without obligation by the author to provide any services or support.
 
-7. Revision history
+6. Revision history
 ====================
 
 0.1a (10 February 2014)  
         - first release
 
-8. FAQ
+7. FAQ
+=======
+
+To Be Updated
+
+8. Future updates
 =======
 
 To Be Updated
