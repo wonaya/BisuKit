@@ -1,6 +1,7 @@
 Notes for BisuKit v0.1a
-- Updated 2014-03-24 : Details on Options, Testing BisuKit
 -----------------------------------------------------------
+
+- Updated 2014-03-24 : Details on Options, Testing BisuKit
 
 1. Summary 
 ==========
