@@ -16,8 +16,8 @@ Bug reports and comments are highly appreciated.
 
 2. Building 
 ===========
-Use "tar -zxvf BisuKit-0.1a.tar.gz"
-Type "make"
+- Use "tar -zxvf BisuKit-0.1a.tar.gz"
+- Type "make"
 
 Currently the linux x86_64 platform is supported.  
 Email me if you need to run BisuKit on other platforms.
