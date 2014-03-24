@@ -17,8 +17,10 @@ Bug reports and comments are highly appreciated.
 
 2. Building 
 ===========
-- Use "tar -zxvf BisuKit-0.1a.tar.gz"
-- Type "make"
+```
+tar -zxvf BisuKit-0.1a.tar.gz
+python setup.py
+```
 
 Currently the linux x86_64 platform is supported.  
 Email me if you need to run BisuKit on other platforms.
@@ -72,15 +74,25 @@ These are MethylKit options
 
 4. Testing BisuKit
 ==================
+To check whether you have all Python dependencies in place,
+```
+python check_dependencies.py
+```
 
 Typical tiling analysis, 
-- python bisukit.py --run tile --genome HG19.fa --context CpG --window 100 --paired no --cores 12 --sam SRR641618_unsorted.sam --largemem yes --circos yes
+```
+python bisukit.py --run tile --genome HG19.fa --context CpG --window 100 --paired no --cores 12 --sam SRR641618_unsorted.sam --largemem yes --circos yes
+```
 
 Typical methylKit/eDMR analysis,
-- python bisukit.py --run methylkit --genome HG19.fa --context CpG --paired no --cores 12 --sam1 SRR641618_unsorted.sam --sam2 SRR641628_unsorted.sam --specie HG19 --largemem yes
+```
+python bisukit.py --run methylkit --genome HG19.fa --context CpG --paired no --cores 12 --sam1 SRR641618_unsorted.sam --sam2 SRR641628_unsorted.sam --specie HG19 --largemem yes
+```
 
 To run these analyses, you need methylation extracted files. To run Bismark's methylkation extractor
-- python bisukit.py --run methylkation_extractor --path_to_bismark /usr/local/bin/bismark/bismark --sam1 SRR641618_unsorted.sam --sam2 SRR641628_unsorted.sam --paired no --cores 2 
+```
+python bisukit.py --run methylkation_extractor --path_to_bismark /usr/local/bin/bismark/bismark --sam1 SRR641618_unsorted.sam --sam2 SRR641628_unsorted.sam --paired no --cores 2 
+```
 
 5. License
 ===========
