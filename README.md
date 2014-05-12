@@ -40,6 +40,8 @@ Check that all of these softwares are defined in PATH if error persists.
 
 3. Running BisuKit
 ==================
+python bisukit.py 
+
 Options:
 - -h, --help            show this help message and exit
 
