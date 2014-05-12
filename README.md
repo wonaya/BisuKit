@@ -3,6 +3,7 @@ Notes for BisuKit v0.1a
 
 - Updated 2014-03-24 : Details on Options, Testing BisuKit
 - Updated 2014-03-25 : BisuKit code upload
+- Updated 2014-05-12 : Code updated, README updated
 
 1. Summary 
 ==========
@@ -20,7 +21,6 @@ Bug reports and comments are highly appreciated.
 ===========
 ```
 tar -zxvf BisuKit-0.1a.tar.gz
-python setup.py
 ```
 
 Currently the linux x86_64 platform is supported.  
