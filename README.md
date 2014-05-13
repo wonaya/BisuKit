@@ -20,7 +20,7 @@ Bug reports and comments are highly appreciated.
 2. Building 
 ===========
 ```
-tar -zxvf BisuKit-0.1a.tar.gz
+unzip BisuKit-master.zip
 ```
 
 Currently the linux x86_64 platform is supported.  
@@ -40,7 +40,7 @@ Check that all of these softwares are defined in PATH if error persists.
 
 3. Running BisuKit
 ==================
-python bisukit.py 
+Use: python bisukit.py 
 
 Options:
 - -h, --help            show this help message and exit
@@ -56,11 +56,12 @@ Required for all function:
 Tile specific options:
 These are tile function specific options
 - --window=WINDOW     tiling window size (in bp)
-- --separate_strands=STRANDED    merge forward and reverse strands into tile=no, output for separate strands=yes
+- --stranded=STRANDED    merge forward and reverse strands into tile=no, output for separate strands=yes
 - --path_to_samtools=SAMTOOLS    full path to samtools (eg. /usr/local/bin/samtools)
 - --path_to_multibamcov=MULTIBAMCOV  full path to multiBamCov (eg. /usr/local/bin/bedtools/bin/multiBamCov)
 - --sam=SAMFILE       name and directory of first sam file generated for tiling analysis, use unsorted sam file
 - --circos=CIRCOS     Generate circos format file, default=no
+- --weighted=WEIGHTED Use weighted methylation value for tiles
 
 Methylation extractor specific options:
 These are Bismark Methylation extractor options
