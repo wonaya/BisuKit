@@ -124,5 +124,5 @@ To Be Updated
 8. Future updates
 =======
 
-Add further functions including generating distribution graphs of average methylation rates in DMRs.
-Instead of defining types of nodes, enable automatic detection of memory size on node.
+- Add further functions including generating distribution graphs of average methylation rates in DMRs.
+- Instead of defining types of nodes, enable automatic detection of memory size on node.
