@@ -116,36 +116,51 @@ class tile_class :
         print "filtering ", chr, "input by", len(cg_loc_list), context, datetime.now()
         outfile = open(str(context)+"_OT_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'w')
         for line1 in open(str(context)+"_OT_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
-            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == "chr"+str(chr) :
-                outfile.write(line1)
-        for line1 in open(str(context)+"_CTOT_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
-            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == "chr"+str(chr) :
+            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == str(chr) :
                 outfile.write(line1)
         outfile.close()
         outfile = open(str(context)+"_OB_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'w')
         for line1 in open(str(context)+"_OB_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
-            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == "chr"+str(chr) :
-                outfile.write(line1)
-        for line1 in open(str(context)+"_CTOB_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
-            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == "chr"+str(chr) :
+            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == str(chr) :
                 outfile.write(line1)
         outfile.close()
+        outfile = open(str(context)+"_CTOT_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'w')
+        for line1 in open(str(context)+"_CTOT_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
+            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == str(chr) :
+                outfile.write(line1)
+        outfile.close()
+        outfile = open(str(context)+"_CTOB_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'w')
+        for line1 in open(str(context)+"_CTOB_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
+            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == str(chr) :
+                outfile.write(line1)
+        outfile.close()
+        
         large_list_1 = []
-        max_val = setup.get_genome_size(genomefile)[0][chr]+1
-        print chr, max_val
-        for x in range(0,max_val) :
+        for x in range(0,setup.get_genome_size(genomefile)[0][chr]+1) :
             large_list_1.append([0]*4)
         for line1 in open(str(context)+"_OT_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'r') :
-            if line1.split("\t")[1] == "+" and int(line1.split("\t")[3]) <= max_val :
+            if line1.split("\t")[1] == "+" and int(line1.split("\t")[3]) <= len(large_list_1) :
                 large_list_1[int(line1.split("\t")[3])][0] += 1
                 large_list_1[int(line1.split("\t")[3])][1] += 1
-            elif line1.split("\t")[1] == "-" and int(line1.split("\t")[3]) <= max_val :
+            elif line1.split("\t")[1] == "-" and int(line1.split("\t")[3]) <= len(large_list_1):
+                large_list_1[int(line1.split("\t")[3])][1] += 1
+        for line1 in open(str(context)+"_CTOT_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'r') :
+            if line1.split("\t")[1] == "+" and int(line1.split("\t")[3]) <= len(large_list_1):
+                large_list_1[int(line1.split("\t")[3])][0] += 1
+                large_list_1[int(line1.split("\t")[3])][1] += 1
+            elif line1.split("\t")[1] == "-" and int(line1.split("\t")[3]) <= len(large_list_1):
                 large_list_1[int(line1.split("\t")[3])][1] += 1
         for line1 in open(str(context)+"_OB_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'r') :
-            if line1.split("\t")[1] == "+" and int(line1.split("\t")[3]) <= max_val :
+            if line1.split("\t")[1] == "+" and int(line1.split("\t")[3]) <= len(large_list_1):
                 large_list_1[int(line1.split("\t")[3])][2] += 1
                 large_list_1[int(line1.split("\t")[3])][3] += 1
-            elif line1.split("\t")[1] == "-" and int(line1.split("\t")[3]) <= max_val :
+            elif line1.split("\t")[1] == "-" and int(line1.split("\t")[3]) <= len(large_list_1):
+                large_list_1[int(line1.split("\t")[3])][3] += 1
+        for line1 in open(str(context)+"_CTOB_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'r') :
+            if line1.split("\t")[1] == "+" and int(line1.split("\t")[3]) <= len(large_list_1):
+                large_list_1[int(line1.split("\t")[3])][2] += 1
+                large_list_1[int(line1.split("\t")[3])][3] += 1
+            elif line1.split("\t")[1] == "-" and int(line1.split("\t")[3]) <= len(large_list_1) :
                 large_list_1[int(line1.split("\t")[3])][3] += 1
         
         if weighted == "yes" :
@@ -210,7 +225,7 @@ class tile_class :
                 os.remove(str(samname).strip(".sam")+"_tile_"+str(context)+"_"+str(window)+"bp_"+str(chr)+"_weighted.txt")
             outfile.close()
         else :
-            outfile = open(str(samname).strip(".sam")+"_tile_"+str(context)+"_"+str(window)+"bp_merged.txt", 'w')
+            outfile = open(str(samname).strip(".sam")+"_tile_"+str(context)+"_"+str(window)+"bp_merged_redone.txt", 'w')
             outfile.write("Start\tEnd\tChrom\tF CpG metC\tF CpG C\tR CpG metC\tR CpG C\n")
             for chr in chr_list :
                 for line in open(str(samname).strip(".sam")+"_tile_"+str(context)+"_"+str(window)+"bp_"+str(chr)+".txt", 'r') :
@@ -223,9 +238,9 @@ class tile_class :
         if weighted == "yes" :
             filename = str(samname).strip(".sam")+"_tile_"+str(context)+"_"+str(window)+"bp_merged_weighted.txt"
         else :
-            filename = str(samname).strip(".sam")+"_tile_"+str(context)+"_"+str(window)+"bp_merged.txt"
+            filename = str(samname).strip(".sam")+"_tile_"+str(context)+"_"+str(window)+"bp_merged_redone.txt"
         if stranded == False :
-            outfile = open(str(samname).strip(".sam")+"_tile_"+str(context)+"_"+str(window)+"bp.bedGraph", 'w')
+            outfile = open(str(samname).strip(".sam")+"_tile_"+str(context)+"_"+str(window)+"bp_redone.bedGraph", 'w')
             for a in open(filename, 'r') :
                 if a.split("\t")[0] != "Start" :
                     outfile.write(a.split("\t")[2]+"\t"+a.split("\t")[0]+"\t"+a.split("\t")[1]+"\t"+str(((float(a.split("\t")[3])+float(a.split("\t")[5]))/((float(a.split("\t")[4])+float(a.split("\t")[6].strip("\n"))))))+"\n")
@@ -416,7 +431,7 @@ class methylkit:
             file1name = file1.split("/")[0]+"/"+str(type)+"_"+file1.split("/")[1]+"_chr"+str(chr)+".methylKit"
             file1ID = file1.split("/")[1].split("_")[0]
         else :
-            file1name = str(type)+"_"+file1+"_chr"+str(chr)+".methylKit"
+            file1name = str(type)+"_"+file1+"_"+str(chr)+".methylKit"
             file1ID = file1.split("_")[0]
         if len(file2.split("/")) > 1 : 
             file2name = file2.split("/")[0]+"/"+str(type)+"_"+file2.split("/")[1]+"_chr"+str(chr)+".methylKit"
@@ -430,8 +445,11 @@ class methylkit:
         robjects.r.assign('file1ID', file1ID)
         robjects.r.assign('file2ID', file2ID)
         robjects.r.assign('specie', specie)
-        robjects.r.assign('distance', distance)
-        outfile = str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+".txt"
+        if distance != None :
+            robjects.r.assign('distance', distance)
+        else : 
+            robjects.r.assign('"none"', distance)
+        outfile = str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_"+str(distance)+".txt"
         robjects.r.assign('outfile', outfile)
         robjects.r('''suppressMessages(library(base))''')
         robjects.r('''myobj=read(rfilelist, sample.id=list(file1ID,file2ID), assembly=specie,treatment=c(0,1),context=type, resolution="base")''')
@@ -447,7 +465,10 @@ class methylkit:
         robjects.r('''myDiff=calculateDiffMeth(meth)''')
         robjects.r('''rm(meth)''')
         robjects.r('''gc()''')
-        eDMRdir = str(os.path.abspath(os.path.dirname(__file__)))+"/R/eDMR_test.R"
+        #mydifffile = str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_myDiff_"+str(distance)+".txt"
+        #robjects.r.assign('myDifffile', mydifffile)
+        #robjects.r('''write.table(myDiff, myDifffile, sep="\t")''')
+        eDMRdir = str(os.path.abspath(os.path.dirname(__file__)))+"/R/eDMR.v.0.5.1.R"
         robjects.r.assign('eDMRdir',eDMRdir)
         robjects.r('''source(eDMRdir)''')
         robjects.r('''myDMR=eDMR(myDiff,step=100,dist=distance,plot=FALSE,main="example",mode=1)''')
@@ -456,7 +477,7 @@ class methylkit:
         robjects.r('''write.table(myDMR.sig.df, file=outfile, sep="\t")''')           
                   
     @staticmethod
-    def rewrite_dmr(file1, file2, type, chr, specie, dmc, length, pvalue, diffmeth, hypo, hyper) :
+    def rewrite_dmr(file1, file2, type, chr, specie, dmc, length, pvalue, diffmeth, hypo, hyper, distance) :
         filelist = [file1, file2]
         if len(file1.split("/")) > 1 : 
             file1name = file1.split("/")[0]+"/"+str(type)+"_"+file1.split("/")[1]+"_chr"+str(chr)+".methylKit"
@@ -470,7 +491,7 @@ class methylkit:
         else :
             file2name = str(type)+"_"+file2+"_"+str(chr)+".methylKit"
             file2ID = file2.split("_")[0]
-        infile = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+".txt", 'r')
+        infile = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_"+str(distance)+".txt", 'r')
         inlines = infile.readlines()
         infile.close()
         outfile = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_temp.txt", 'w')
@@ -510,10 +531,10 @@ class methylkit:
                             outfile.write("\t")
                             outfile.write("\t".join(line.split("\t")[2:]))
         outfile.close()
-        os.system("mv "+str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_temp.txt "+str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+".txt")
+        os.system("mv "+str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_temp.txt "+str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_"+str(distance)+".txt")
           
     @staticmethod
-    def merge_dmr(file1, file2, type, specie) :
+    def merge_dmr(file1, file2, genome, type, specie, distance) :
         filelist = [file1, file2]
         if len(file1.split("/")) > 1 : 
             file1ID = file1.split("/")[1].split("_")[0]
@@ -525,7 +546,7 @@ class methylkit:
             file2ID = file2.split("_")[0]
         
         chr_list = {}
-        for chr in setup.get_genome_size(options.genome)[0].keys() :
+        for chr in setup.get_genome_size(genome)[0].keys() :
             if chr[:3] == "chr" : 
                 chr_list[str(chr).split("chr")[1]] = []
             else :
@@ -543,10 +564,10 @@ class methylkit:
         chr_list_str.sort()
         chr_list =chr_list_int+chr_list_str
         
-        outfile = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr.txt", 'w')
+        outfile = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr"+"_"+str(distance)+".txt", 'w')
         for chr in chr_list :
-            if os.path.isfile(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+".txt") :
-                a = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+".txt", 'r') 
+            if os.path.isfile(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_"+str(distance)+".txt") :
+                a = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_"+str(distance)+".txt", 'r') 
                 alines = a.readlines()
                 if chr_list.index(chr) == 0 :
                     for aline in alines :
@@ -556,10 +577,10 @@ class methylkit:
                         outfile.write(aline)
         outfile.close()
         
-        bedout = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr.bedGraph", 'w')
+        bedout = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_"+str(distance)+".bedGraph", 'w')
         for chr in chr_list :
-            if os.path.isfile(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+".txt") :
-                a = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+".txt", 'r') 
+            if os.path.isfile(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_"+str(distance)+".txt") :
+                a = open(str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr_chr"+str(chr)+"_"+str(distance)+".txt", 'r') 
                 alines = a.readlines()
                 for aline in alines[1:] :
                     bedout.write("\t".join(aline.split("\t")[0:3]))
@@ -571,7 +592,7 @@ class methylkit:
 parser = OptionParser()
 allgroup = OptionGroup(parser, "Required for all function")
 parser.add_option_group(allgroup)
-allgroup.add_option("--run", dest="run", help="type of run : tile / methylation_extractor / methylkit")
+allgroup.add_option("--run", dest="run", help="type of run : tile / methylation_extractor / methylkit / circos")
 allgroup.add_option("--context", dest="context", help="CpG, CHH, CHG or all")
 allgroup.add_option("--genome", dest="genome", help="name and directory of genome fasta file")
 allgroup.add_option("--specie", dest="specie", help="Specie code, B73, MM9, HG19")
@@ -659,6 +680,8 @@ elif options.run == "methylkit" :
     elif options.specie == "hg19" :
         chr_list = {'1':[1],'2':[2],'3':[3],'4':[4],'5':[5],'6':[6],'7':[7],'8':[8],'9':[9],'10':[10],'11':[11],'12':[12],'13':[13],'14':[14],'15':[15],'16':[16],'17':[17],'18':[18],'19':[19],'20':[20],'21':[21],'22':[22],'X':[23],'Y':[24]} 
     total_rounds = (len(chr_list)/cores)+1
+    
+    """
     for round in range(0, total_rounds) :
         jobs = []
         for chr in chr_list.keys()[round*cores:(round+1)*cores] :
@@ -670,21 +693,24 @@ elif options.run == "methylkit" :
             jobs.append(s2)
             s2.start()
         [x.join() for x in jobs]
-    print datetime.now()
+    """
     for round in range(0, total_rounds) :
         jobs = []
         for chr in chr_list.keys()[round*cores:(round+1)*cores] :
+        #for chr in ['10']:
             s = multiprocessing.Process(target=methylkit.methylkit_edmr, args=(options.samfile1, options.samfile2, options.context, chr, options.specie, options.distance, ))
             jobs.append(s)
             s.start()
         [x.join() for x in jobs]
+    
     for round in range(0, total_rounds) :
         jobs = []
         for chr in chr_list.keys()[round*cores:(round+1)*cores] :
-            s = multiprocessing.Process(target=methylkit.rewrite_dmr, args=(options.samfile1, options.samfile2, options.context, chr, options.specie, options.dmc, options.length, options.pvalue, options.diffmeth, options.hypo, options.hyper, ))
+        #for chr in ['10']:
+            s = multiprocessing.Process(target=methylkit.rewrite_dmr, args=(options.samfile1, options.samfile2, options.context, chr, options.specie, options.dmc, options.length, options.pvalue, options.diffmeth, options.hypo, options.hyper, options.distance, ))
             jobs.append(s)
             s.start()
         [x.join() for x in jobs]
-    methylkit.merge_dmr(options.samfile1, options.samfile2, options.context, options.specie)
+    methylkit.merge_dmr(options.samfile1, options.samfile2, options.genome, options.context, options.specie, options.distance)
     print datetime.now(), "complete" ; sys.exit() 
     

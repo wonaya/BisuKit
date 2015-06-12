@@ -116,36 +116,29 @@ class tile_class :
         print "filtering ", chr, "input by", len(cg_loc_list), context, datetime.now()
         outfile = open(str(context)+"_OT_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'w')
         for line1 in open(str(context)+"_OT_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
-            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == "chr"+str(chr) :
-                outfile.write(line1)
-        for line1 in open(str(context)+"_CTOT_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
-            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == "chr"+str(chr) :
+            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == str(chr) :
                 outfile.write(line1)
         outfile.close()
         outfile = open(str(context)+"_OB_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'w')
         for line1 in open(str(context)+"_OB_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
-            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == "chr"+str(chr) :
-                outfile.write(line1)
-        for line1 in open(str(context)+"_CTOB_"+tile_class.extract_name(samname, genomefile)[0]+".txt", 'r') :
-            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == "chr"+str(chr) :
+            if len(line1.split("\t")) > 1 and line1.split("\t")[2] == str(chr) :
                 outfile.write(line1)
         outfile.close()
+        
         large_list_1 = []
-        max_val = setup.get_genome_size(genomefile)[0][chr]+1
-        print chr, max_val
-        for x in range(0,max_val) :
+        for x in range(0,setup.get_genome_size(genomefile)[0][chr]+1) :
             large_list_1.append([0]*4)
         for line1 in open(str(context)+"_OT_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'r') :
-            if line1.split("\t")[1] == "+" and int(line1.split("\t")[3]) <= max_val :
+            if line1.split("\t")[1] == "+" :
                 large_list_1[int(line1.split("\t")[3])][0] += 1
                 large_list_1[int(line1.split("\t")[3])][1] += 1
-            elif line1.split("\t")[1] == "-" and int(line1.split("\t")[3]) <= max_val :
+            elif line1.split("\t")[1] == "-" :
                 large_list_1[int(line1.split("\t")[3])][1] += 1
         for line1 in open(str(context)+"_OB_"+tile_class.extract_name(samname, genomefile)[0]+"_"+str(chr)+".txt", 'r') :
-            if line1.split("\t")[1] == "+" and int(line1.split("\t")[3]) <= max_val :
+            if line1.split("\t")[1] == "+" :
                 large_list_1[int(line1.split("\t")[3])][2] += 1
                 large_list_1[int(line1.split("\t")[3])][3] += 1
-            elif line1.split("\t")[1] == "-" and int(line1.split("\t")[3]) <= max_val :
+            elif line1.split("\t")[1] == "-" :
                 large_list_1[int(line1.split("\t")[3])][3] += 1
         
         if weighted == "yes" :
@@ -407,7 +400,7 @@ class methylkit:
         print "generating DMRs for", file1, file2, "on", chr, type
         importr('GenomicRanges')
         importr('bigmemory')
-        importr('data.table')
+        #importr('data.table')
         basedir = str(os.path.abspath(os.path.dirname(__file__)))+"/R/base.R"
         robjects.r.assign('basedir',basedir)
         robjects.r('''source(basedir)''')
@@ -416,7 +409,7 @@ class methylkit:
             file1name = file1.split("/")[0]+"/"+str(type)+"_"+file1.split("/")[1]+"_chr"+str(chr)+".methylKit"
             file1ID = file1.split("/")[1].split("_")[0]
         else :
-            file1name = str(type)+"_"+file1+"_chr"+str(chr)+".methylKit"
+            file1name = str(type)+"_"+file1+"_"+str(chr)+".methylKit"
             file1ID = file1.split("_")[0]
         if len(file2.split("/")) > 1 : 
             file2name = file2.split("/")[0]+"/"+str(type)+"_"+file2.split("/")[1]+"_chr"+str(chr)+".methylKit"
@@ -571,7 +564,7 @@ class methylkit:
 parser = OptionParser()
 allgroup = OptionGroup(parser, "Required for all function")
 parser.add_option_group(allgroup)
-allgroup.add_option("--run", dest="run", help="type of run : tile / methylation_extractor / methylkit")
+allgroup.add_option("--run", dest="run", help="type of run : tile / methylation_extractor / methylkit / circos")
 allgroup.add_option("--context", dest="context", help="CpG, CHH, CHG or all")
 allgroup.add_option("--genome", dest="genome", help="name and directory of genome fasta file")
 allgroup.add_option("--specie", dest="specie", help="Specie code, B73, MM9, HG19")
@@ -659,6 +652,8 @@ elif options.run == "methylkit" :
     elif options.specie == "hg19" :
         chr_list = {'1':[1],'2':[2],'3':[3],'4':[4],'5':[5],'6':[6],'7':[7],'8':[8],'9':[9],'10':[10],'11':[11],'12':[12],'13':[13],'14':[14],'15':[15],'16':[16],'17':[17],'18':[18],'19':[19],'20':[20],'21':[21],'22':[22],'X':[23],'Y':[24]} 
     total_rounds = (len(chr_list)/cores)+1
+    
+    """
     for round in range(0, total_rounds) :
         jobs = []
         for chr in chr_list.keys()[round*cores:(round+1)*cores] :
@@ -670,7 +665,7 @@ elif options.run == "methylkit" :
             jobs.append(s2)
             s2.start()
         [x.join() for x in jobs]
-    print datetime.now()
+    """
     for round in range(0, total_rounds) :
         jobs = []
         for chr in chr_list.keys()[round*cores:(round+1)*cores] :
@@ -678,6 +673,7 @@ elif options.run == "methylkit" :
             jobs.append(s)
             s.start()
         [x.join() for x in jobs]
+    
     for round in range(0, total_rounds) :
         jobs = []
         for chr in chr_list.keys()[round*cores:(round+1)*cores] :
