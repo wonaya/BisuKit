@@ -5,6 +5,7 @@ Notes for BisuKit v0.1a
 - Updated 2014-03-25 : BisuKit code upload
 - Updated 2014-05-12 : Code updated, README updated
 - Updated 2014-05-13 : Tarball added
+- Updated 2015-06-12 : README updated
 
 1. Summary 
 ==========
