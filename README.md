@@ -124,4 +124,4 @@ To Be Updated
 8. Future updates
 =======
 
-To Be Updated
+Add further functions including generating distribution graphs of average methylation rates in DMRs.
