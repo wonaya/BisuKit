@@ -1,4 +1,4 @@
-Notes for BisuKit v0.1a
+Notes for BisuKit v0.1.2
 -----------------------------------------------------------
 
 - Updated 2014-03-24 : Details on Options, Testing BisuKit
@@ -6,6 +6,7 @@ Notes for BisuKit v0.1a
 - Updated 2014-05-12 : Code updated, README updated
 - Updated 2014-05-13 : Tarball added
 - Updated 2014-06-11 : Future updates part of README updated
+- Updated 2016-02-01 : Major updates to script (simplified the pipeline) and same version runningon DE of Cyverse
 
 1. Summary 
 ==========
@@ -13,16 +14,14 @@ Notes for BisuKit v0.1a
 BisKit has following features:
 
 - Use Bismark's methylation extractor to get statistics of methylated cytosines
-- Generate tiles for bisulfite sequencing data
 - Identify Differentially Methylated Regions (DMRs) using R packages methylKit and eDMR
-- Generate configuration file for Circos plot generation
 
 Bug reports and comments are highly appreciated.
 
 2. Building 
 ===========
 ```
-unzip BisuKit-master.zip
+tar -zxvf bisukit-0.1.2.tar.gz
 ```
 
 Currently the linux x86_64 platform is supported.  
@@ -31,11 +30,11 @@ Email me if you need to run BisuKit on other platforms.
 BisuKit requires Python (version check)
 
 These are some of the packages that BisKit requires (links and version to be updated) :
-- Samtools
-- Bedtools
-- Bismark
 - RPy2 for Python
 - R
+
+The files you need in path are not actually BAM files but Context specific methylation extracted files
+http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide_v0.14.4.pdf 
 
 Most errors that occur at this stage are related to the PATH settings.
 Check that all of these softwares are defined in PATH if error persists.
@@ -47,36 +46,14 @@ Use: python bisukit.py
 Options:
 - -h, --help            show this help message and exit
 
-Required for all function:
-- --run=RUN           type of run : tile / methylation_extractor / methylkit / circos
 - --genome=GENOME     name and directory of genome fasta file
-- --context=CONTEXT   CpG, CHH, CHG or all
+- --context=CONTEXT   CpG, CHG or CHH
 - --specie=SPECIE     Specie code, B73, MM9, HG19
 - --cores=CORES       no. of cores to use in running BisKit
 - -q, --quiet         don't print status messages to stdout
 
-Tile specific options:
-These are tile function specific options
-- --window=WINDOW     tiling window size (in bp)
-- --stranded=STRANDED    merge forward and reverse strands into tile=no, output for separate strands=yes
-- --path_to_samtools=SAMTOOLS    full path to samtools (eg. /usr/local/bin/samtools)
-- --path_to_multibamcov=MULTIBAMCOV  full path to multiBamCov (eg. /usr/local/bin/bedtools/bin/multiBamCov)
-- --sam=SAMFILE       name and directory of first sam file generated for tiling analysis, use unsorted sam file
-- --circos=CIRCOS     Generate circos format file, default=no
-- --weighted=WEIGHTED Use weighted methylation value for tiles
-
-Methylation extractor specific options:
-These are Bismark Methylation extractor options
-- --paired=PAIRED     paired-end or single-end reads, yes or no
-- --path_to_bismark=BISMARK full path to bismark (eg. /usr/local/bin/bismark/bismark)
-
-MethylKit specific options:
-These are MethylKit options
-- --sam1=SAMFILE1     name and directory of first sam file generated from bismark for DMR finding
-- --sam2=SAMFILE2     name and directory of second sam file generated from bismark for DMR finding
-- --specie=SPECIE     Specie code, B73, MM9, HG19
-- --largemem=LARGEMEM If using large memory notes = yes (tested on 1TB node)
-- --nonb73=NONB73     For maize genome, if looking at nonB73 genotype (Maize specific)
+- --bam1=BAMFILE1     name and directory of first bam file generated from bismark for DMR finding
+- --bam2=BAMFILE2     name and directory of second bam file generated from bismark for DMR finding
 
 4. Testing BisuKit
 ==================
@@ -85,19 +62,9 @@ To check whether you have all Python dependencies in place,
 python check_dependencies.py
 ```
 
-Typical tiling analysis, 
-```
-python bisukit.py --run tile --genome HG19.fa --context CpG --window 100 --paired no --cores 12 --sam SRR641618_unsorted.sam --largemem yes --circos yes
-```
-
 Typical methylKit/eDMR analysis,
 ```
-python bisukit.py --run methylkit --genome HG19.fa --context CpG --paired no --cores 12 --sam1 SRR641618_unsorted.sam --sam2 SRR641628_unsorted.sam --specie HG19 --largemem yes
-```
-
-To run these analyses, you need methylation extracted files. To run Bismark's methylkation extractor
-```
-python bisukit.py --run methylkation_extractor --path_to_bismark /usr/local/bin/bismark/bismark --sam1 SRR641618_unsorted.sam --sam2 SRR641628_unsorted.sam --paired no --cores 2 
+python bisukit.py --genome HG19.fa --context CpG --cores 12 --bam1 SRR641618_unsorted.bam --bam2 SRR641628_unsorted.bam --specie HG19
 ```
 
 5. License
@@ -113,16 +80,14 @@ python bisukit.py --run methylkation_extractor --path_to_bismark /usr/local/bin/
 6. Revision history
 ====================
 
+- 0.1.2 (1 February 2016)
 - 0.1a (10 February 2014)  
         - first release
 
 7. FAQ
 =======
 
-To Be Updated
 
 8. Future updates
 =======
 
-- Add further functions including generating distribution graphs of average methylation rates in DMRs.
-- Instead of defining types of nodes, enable automatic detection of memory size on node.
