@@ -4,6 +4,7 @@
 ### Test entire process - Jan 28
 ### tmp into random number generate - Jan 28
 ### Make into Agave App - Jan 29
+### Addd OT,CTOT,OB,CTOB param - Feb 1
 
 import os,sys
 import resource
@@ -22,6 +23,7 @@ import numpy as np
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import random
+import matplotlib.pyplot as plt
         
 def complete(text, state):
     return (glob.glob(text+'*')+[None])[state]
@@ -58,7 +60,7 @@ class setup :
 
 class methylkit:
     @staticmethod
-    def prep_methylkit(chr, samname, context, genomefile, randid) :
+    def prep_methylkit(chr, samname, ot, ob, ctot, ctob, context, genomefile, randid) :
         import bisect
         ### get rid of cycles and deal with one chr at a time?
         
@@ -113,7 +115,7 @@ class methylkit:
             cg_loc_file.write(str(pos)+"\n")
         cg_loc_file.close()
         ### check chr or chr+chr
-        fp = open(str(context)+"_OT_"+str(samname).split(".bam")[0]+".txt")
+        fp = open(ot)
         for i, line in enumerate(fp):
             if i == 2:
                 if line.split("\t")[2][:3] == "chr" :
@@ -125,21 +127,21 @@ class methylkit:
         
         ### write into separate split into the list top and bottom
         print chr, "writing chr separate bme file", datetime.now()
-        context_file = open("tmp"+str(randid)+"/"+str(samname).split(".bam")[0]+"-"+str(chr)+"_bme_top.out",'w')
-        for a_f in open(str(context)+"_OT_"+str(samname).split(".bam")[0]+".txt", 'r') :
+        context_file = open("tmp"+str(randid)+"/"+str(samname)+"-"+str(chr)+"_bme_top.out",'w')
+        for a_f in open(ot, 'r') :
             if len(a_f.split("\t")) > 2 and a_f.split("\t")[2] == chrid+str(chr) :
                 context_file.write(a_f)
-        if os.path.isfile(str(context)+"_CTOT_"+str(samname).split(".bam")[0]+".txt") :
-            for a_f in open(str(context)+"_CTOT_"+str(samname).split(".bam")[0]+".txt", 'r') :
+        if ctot != None :
+            for a_f in open(ctot, 'r') :
                 if len(a_f.split("\t")) > 2 and a_f.split("\t")[2] == chrid+str(chr) :
                     context_file.write(a_f)
         context_file.close()
-        context_file = open("tmp"+str(randid)+"/"+str(samname).split(".bam")[0]+"-"+str(chr)+"_bme_bottom.out",'w')
-        for a_f in open(str(context)+"_OB_"+str(samname).split(".bam")[0]+".txt", 'r') :
+        context_file = open("tmp"+str(randid)+"/"+str(samname)+"-"+str(chr)+"_bme_bottom.out",'w')
+        for a_f in open(ob, 'r') :
             if len(a_f.split("\t")) > 2  and a_f.split("\t")[2] == chrid+str(chr) :
                 context_file.write(a_f)
-        if os.path.isfile(str(context)+"_CTOB_"+str(samname).split(".bam")[0]+".txt") :
-            for a_f in open(str(context)+"_CTOB_"+str(samname).split(".bam")[0]+".txt", 'r') :
+        if ctob != None :
+            for a_f in open(ctob, 'r') :
                 if len(a_f.split("\t")) > 2 and a_f.split("\t")[2] == chrid+str(chr) :
                     context_file.write(a_f)
         context_file.close()
@@ -190,66 +192,78 @@ class methylkit:
         import rpy2.robjects as robjects
         from rpy2.robjects.packages import importr
         os.environ["R_LIBS"] = "/home1/02114/wonaya/R/x86_64-unknown-linux-gnu-library/2.15"
-        #os.environ["LD_LIBRARY_PATH"] = "/opt/apps/R/2.15.1/lib64/R/lib:$LD_LIBRARY_PATH"
         print chr, "generating methdiff for", file1, file2, "on",type
-        os.chdir("tmp"+str(randid)+"/")
         importr('GenomicRanges')
         importr('bigmemory')
         importr('data.table')
         importr('methylKit')
-        basedir = str(os.path.abspath(os.path.dirname(__file__)))+"/../R/base.R"
+        basedir = str(os.path.abspath(os.path.dirname(__file__)))+"/R/base.R"
         robjects.r.assign('basedir',basedir)
         robjects.r('''source(basedir)''')
-        diffdir = str(os.path.abspath(os.path.dirname(__file__)))+"/../R/diffMeth.R"
+        diffdir = str(os.path.abspath(os.path.dirname(__file__)))+"/R/diffMeth.R"
         robjects.r.assign('diffdir',diffdir)
         robjects.r('''source(diffdir)''')
         filelist = [file1, file2]
+        os.chdir("tmp"+str(randid)+"/")
         file1name = str(type)+"_"+file1+"_chr"+str(chr)+".methylKit"
-        file1ID = file1.split("_")[0]
+        file1ID = file1
         file2name = str(type)+"_"+file2+"_chr"+str(chr)+".methylKit"
-        file2ID = file2.split("_")[0]
+        file2ID = file2
         filelist = [file1name, file2name]
+        file3name = str(type)+"_chr"+str(chr)+"_methylationstat.pdf"
         robjects.r.assign('rfilelist',filelist)
         robjects.r.assign('type', type)
         robjects.r.assign('file1ID', file1ID)
         robjects.r.assign('file2ID', file2ID)
+        robjects.r.assign('file3ID', file3name)
         robjects.r.assign('specie', specie)
         robjects.r('''suppressMessages(library(base))''')
         robjects.r('''myobj=read(rfilelist, sample.id=list(file1ID,file2ID), assembly=specie,treatment=c(0,1),context=type, resolution="base")''')
+        robjects.r('''pdf(file=file3ID)''')
+        robjects.r('''getMethylationStats(myobj[[1]],plot=T,both.strands=F)''')
+        robjects.r('''getMethylationStats(myobj[[2]],plot=T,both.strands=F)''')
+        robjects.r('''dev.off()''')
         robjects.r('''meth=unite(myobj, destrand=FALSE)''')
-        robjects.r('''rm(valid.methylRawObj)''')
-        robjects.r('''rm(rfilelist)''')
-        robjects.r('''rm(read)''')
-        robjects.r('''rm(myobj)''')
-        robjects.r('''gc()''')
-        robjects.r('''myDiff=calculateDiffMeth(meth)''')
-        robjects.r('''rm(meth)''')
-        robjects.r('''gc()''')
-        difffile = str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_diff_chr"+str(chr)+".txt"
-        robjects.r.assign('difffile', difffile)
-        robjects.r('''write.table(myDiff, file=difffile, sep="\t", row.names = FALSE, col.names= FALSE,  quote = FALSE)''')
+        robjects.r('''if (nrow(meth) ==0) {write.table(meth,file="nometh.txt")}''')
+        if os.path.isfile("nometh.txt") :
+            pass
+        else :
+            robjects.r('''rm(valid.methylRawObj)''')
+            robjects.r('''rm(rfilelist)''')
+            robjects.r('''rm(read)''')
+            robjects.r('''rm(myobj)''')
+            robjects.r('''gc()''')
+            robjects.r('''myDiff=calculateDiffMeth(meth,num.cores=16)''')
+            robjects.r('''rm(meth)''')
+            robjects.r('''gc()''')
+            os.system("mv "+str(type)+"_chr"+str(chr)+"_methylationstat.pdf ../.")
+            if type == "CG" :
+                type = "CpG"
+            difffile = str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_diff_chr"+str(chr)+".txt"
+            robjects.r.assign('difffile', difffile)
+            robjects.r('''write.table(myDiff, file=difffile, sep="\t", row.names = FALSE, col.names= FALSE,  quote = FALSE)''')
+        os.system("rm nometh.txt")
         os.chdir("..")
         
     @staticmethod
     def eDMR(file1, file2, type, dmc, cpg, qvalue, diffmeth, randid) :
         import rpy2.robjects as robjects
         from rpy2.robjects.packages import importr
-        os.environ["R_LIBS"] = "/home1/02114/wonaya/R/x86_64-unknown-linux-gnu-library/2.15"
-        file1ID = file1.split("_")[0]
-        file2ID = file2.split("_")[0]
-        outfile = "tmp"+str(randid)+"/"+str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_dmr.txt"
-        robjects.r.assign('outfile', outfile)
-        eDMRdir = str(os.path.abspath(os.path.dirname(__file__)))+"/../R/eDMR_0.5.1.R"
+        eDMRdir = str(os.path.abspath(os.path.dirname(__file__)))+"/R/eDMR_0.5.1.R"
         robjects.r.assign('eDMRdir',eDMRdir)
         robjects.r('''source(eDMRdir)''')
-        robjects.r.assign('type', type)
-        robjects.r.assign('file1ID', file1ID)
-        robjects.r.assign('file2ID', file2ID)
-        difffile = "tmp"+str(randid)+"/"+str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_diff_sorted.txt"
-        robjects.r.assign('difffile', difffile)
-        robjects.r('''myDiff=read.table(difffile, header=TRUE)''')
-        robjects.r('''mydmr=eDMR(myDiff, mode=1, ACF=FALSE)''')
-        robjects.r('''write.table(mydmr, file=outfile, sep="\t",quote = FALSE, row.names=FALSE,col.names=FALSE)''')           
+        diff = str("tmp"+randid+"/"+str(file1)+"_"+str(file2)+"_"+str(type)+"_diff_sorted.txt")
+        robjects.r.assign('diff', diff)
+        robjects.r('''myDiff=read.table(diff, header=TRUE)''')
+        robjects.r('''png(file="bimodaldistribution.png")''')
+        robjects.r('''myMixmdl=myDiff.to.mixmdl(myDiff, plot=T, main="example")''')
+        robjects.r('''dev.off()''')
+        robjects.r('''plotcost=plotCost(myMixmdl,imgfile="costfunction.png",main="cost function")''')
+        robjects.r('''mydmr=eDMR(myDiff, mode=1, ACF=TRUE)''')
+        robjects.r('''mydmr.df =as.data.frame(mydmr)''')
+        outfile = str(file1)+"_"+str(file2)+"_"+str(type)+"_dmr.txt"
+        robjects.r.assign('outfile', outfile)
+        robjects.r('''write.table(mydmr.df, file=outfile, sep="\t",quote = FALSE, row.names=FALSE,col.names=FALSE)''')           
 
 parser = OptionParser()
 allgroup = OptionGroup(parser, "Required for all function")
@@ -261,8 +275,16 @@ allgroup.add_option("-q", "--quiet", action="store_false", dest="verbose", defau
 mkgroup = OptionGroup(parser, "MethylKit specific options","These are MethylKit options\n")
 parser.add_option_group(mkgroup)
 mkgroup.add_option("--cores", dest="cores", help="no. of cores to use in running BisKit")
-mkgroup.add_option("--bam1", dest="bamfile1", help="name and directory of first bam file generated from bismark for DMR finding")
-mkgroup.add_option("--bam2", dest="bamfile2", help="name and directory of second bam file generated from bismark for DMR finding")
+mkgroup.add_option("--name1", dest="bamfile1", help="name of sample 1")
+mkgroup.add_option("--name2", dest="bamfile2", help="name of sample 2")
+mkgroup.add_option("--ot1", dest="ot1", help="path of first Top strand methylation extractor file generated from bismark methylation extractor")
+mkgroup.add_option("--ob1", dest="ob1", help="path of first Bottom strand methylation extractor file generated from bismark methylation extractor")
+mkgroup.add_option("--ot2", dest="ot2", help="path of second Top strand methylation extractor file generated from bismark methylation extractor")
+mkgroup.add_option("--ob2", dest="ob2", help="path of second Bottom strand methylation extractor file generated from bismark methylation extractor")
+mkgroup.add_option("--ctot1", dest="ctot1", help="path of first complimentary Top strand methylation extractor file generated from bismark methylation extractor", default=None)
+mkgroup.add_option("--ctob1", dest="ctob1", help="path of first complimentary Bottom strand methylation extractor file generated from bismark methylation extractor", default=None)
+mkgroup.add_option("--ctot2", dest="ctot2", help="path of second complimentary Top strand methylation extractor file generated from bismark methylation extractor", default=None)
+mkgroup.add_option("--ctob2", dest="ctob2", help="path of second complimentary Bottom strand methylation extractor file generated from bismark methylation extractor", default=None)
 mkgroup.add_option("--dmc", dest="dmc", help="Theshold DMC count to filter DMRs, default = 1", default=1)
 mkgroup.add_option("--cpg", dest="cpg", help="No. of CpG in a DMR, default = 3", default=3)
 mkgroup.add_option("--qvalue", dest="qvalue", help="Q-value of DMRs to print", default=0.05)
@@ -275,8 +297,9 @@ if not os.path.isdir("tmp"+randid) :
 else :
     randid = str(random.randint(10000, 99999))
     os.mkdir("tmp"+randid)
-    
+
 print "BisuKit starting up", datetime.now()
+
 setup.check_cores(int(options.cores))
 cores = int(options.cores)
 chr_list = setup.get_genome_size(options.genome)[1]
@@ -304,70 +327,88 @@ del genome_list
 total_rounds = (len(chr_list)/int(options.cores))+1
 
 ### write chr sequence into file
-print "writing genome to tmp"
-for chrom in chr_list[-5:-3] :
-    outfile = open("tmp"+str(randid)+"/"+str(chrom)+".out", 'w')
-    for a in whole_list[int(chr_order_dict[chrom])] :
+for chr in chr_list :
+    outfile = open("tmp"+str(randid)+"/"+str(chr)+".out", 'w')
+    for a in whole_list[int(chr_order_dict[chr])] :
         outfile.write(a)
     outfile.close()
 del chr_order_dict
 del whole_list
 
 print "prep bam1 and bam2", datetime.now()
-for chr in chr_list[-5:-3] :
+for chr in chr_list :
     jobs = []
-    s1 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile1, options.context, options.genome, randid, ))
-    s2 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile2, options.context, options.genome, randid, ))
+    s1 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile1, options.ot1, options.ob1, options.ctot1, options.ctob1, options.context, options.genome, randid, ))
+    s2 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile2, options.ot2, options.ob2, options.ctot2, options.ctob2, options.context, options.genome, randid, ))
     jobs.append(s1)
     jobs.append(s2)
     s1.start()
     s2.start()
     [x.join() for x in jobs]
 
+### resetting chr_list
+os.chdir("tmp"+randid)
+if options.context == "CpG" :
+    type = "CG"
+for chr in chr_list :
+    if os.stat(str(options.context)+"_"+options.bamfile1+"_chr"+str(chr)+".methylKit").st_size == 0 or os.stat(str(options.context)+"_"+options.bamfile2+"_chr"+str(chr)+".methylKit").st_size == 0 :
+        chr_list.remove(chr)
+os.chdir("..")
+
 print "methylkit start", datetime.now()
-jobs = []
-for round in range(0, total_rounds) :
-    jobs = []
-    #for chr in chr_list[round*cores:(round+1)*cores]:
-    for chr in chr_list[-5:-3] :
-        s1 = multiprocessing.Process(target=methylkit.methylkit, args=(options.bamfile1, options.bamfile2, options.context, chr, options.specie, randid, ))
-        jobs.append(s1)
-        s1.start()
-    [x.join() for x in jobs]
+for chr in chr_list :
+    print "methylKit for chr", chr
+    methylkit.methylkit(options.bamfile1, options.bamfile2, options.context, chr, options.specie, randid)
 
 ### merge meth  
-print "merging methylKit output", datetime.now()
-whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1).split("_")[0])+"_"+str((options.bamfile2).split("_")[0])+"_"+str(options.context)+"_diff.txt", 'w') 
-#for chr in chr_list :
-for chr in  chr_list[-5:-3] :
-    a = open("tmp"+str(randid)+"/"+str((options.bamfile1).split("_")[0])+"_"+str((options.bamfile2).split("_")[0])+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt", 'r')
-    ### remove duplicates and 0 meth
-    alines = a.readlines()
-    for line in set(alines) :
-        if float(line.split("\t")[-1].strip("\n")) != 0 :
-            whole_meth_file.write(line)
+print "merging methylKit output", datetime.now(), chr_list
+whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.txt", 'w') 
+for chr in chr_list :
+    if os.path.isfile("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt") :
+        a = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt", 'r')
+        ### remove duplicates and 0 meth
+        alines = a.readlines()
+        for line in set(alines) :
+            if float(line.split("\t")[-1].strip("\n")) != 0 :
+                whole_meth_file.write(line)
 whole_meth_file.close()
 
-os.system("sort -nk1 -nk2 tmp"+str(randid)+"/"+str((options.bamfile1).split("_")[0])+"_"+str((options.bamfile2).split("_")[0])+"_"+str(options.context)+"_diff.txt > tmp"+str(randid)+"/"+str((options.bamfile1).split("_")[0])+"_"+str((options.bamfile2).split("_")[0])+"_"+str(options.context)+"_diff.sorted.txt")
-whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1).split("_")[0])+"_"+str((options.bamfile2).split("_")[0])+"_"+str(options.context)+"_diff_sorted.txt", 'w') 
+os.system("sort -nk1 -nk2 tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.txt > tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.sorted.txt")
+whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_sorted.txt", 'w') 
 whole_meth_file.write("chr\tstart\tend\tstrand\tpvalue\tqvalue\tmeth.diff\n")
-for a in open("tmp"+str(randid)+"/"+str((options.bamfile1).split("_")[0])+"_"+str((options.bamfile2).split("_")[0])+"_"+str(options.context)+"_diff.sorted.txt",'r'):
+for a in open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.sorted.txt",'r'):
     whole_meth_file.write(a)
 whole_meth_file.close()
 
 print "running eDMR", datetime.now()
 methylkit.eDMR(options.bamfile1, options.bamfile2, options.context, options.dmc, options.cpg, options.diffmeth, options.qvalue, randid)
-bedgraph = open((options.bamfile1).split("_")[0]+"_"+(options.bamfile2).split("_")[0]+"_"+options.context+"_DMR.bedGraph", 'w')
-outfile = open((options.bamfile1).split("_")[0]+"_"+(options.bamfile2).split("_")[0]+"_"+options.context+"_DMR.txt", 'w')
-outfile.write("chr\tstart\tend\twidth\tstrand\tmean.meth.diff\tnum.CpGs\tnum.DMCs\tDMR.pvalue\tDMR.qvalue\n")
-afile = open("tmp"+str(randid)+"/"+(options.bamfile1).split("_")[0]+"_"+(options.bamfile2).split("_")[0]+"_"+options.context+"_dmr.txt", 'r')
+afile = open((options.bamfile1)+"_"+(options.bamfile2)+"_"+options.context+"_dmr.txt", 'r')
 alines = afile.readlines()
+if alines[0].strip("\n") == "no DMR found" :
+    print "no DMR found"
+    os.system("rm -Rf tmp"+str(randid)+"/")
+    sys.exit()
+bedgraph = open((options.bamfile1)+"_"+(options.bamfile2)+"_"+options.context+"_DMR.bedGraph", 'w')
+outfile = open((options.bamfile1)+"_"+(options.bamfile2)+"_"+options.context+"_DMR.txt", 'w')
+outfile.write("chr\tstart\tend\twidth\tstrand\tmean.meth.diff\tnum.CpGs\tnum.DMCs\tDMR.pvalue\tDMR.qvalue\n")
+width_list=[]
 for a in alines[1:] :
-    if float(a.split("\t")[5]) >= float(options.diffmeth) or float(a.split("\t")[5]) <= float((options.diffmeth))*-1 :
-        if float(a.split("\t")[7]) >= float(options.dmc) and float(a.split("\t")[6]) >= float(options.cpg) and float(a.split("\t")[-1]) <= float(options.qvalue) :
-            outfile.write(a)
-            bedgraph.write("\t".join(a.split("\t")[0:3])+"\t"+a.split("\t")[5]+"\n")
+    if a.split("\t")[8] != "NA" or a.split("\t")[9].strip("\n") != "NA":
+        if float(a.split("\t")[5]) >= float(options.diffmeth) or float(a.split("\t")[5]) <= float((options.diffmeth))*-1 :
+            if float(a.split("\t")[7]) >= float(options.dmc) and float(a.split("\t")[6]) >= float(options.cpg) and float(a.split("\t")[-1]) <= float(options.qvalue) :
+                outfile.write(a)
+                bedgraph.write("\t".join(a.split("\t")[0:3])+"\t"+a.split("\t")[5]+"\n")
+                width_list.append(float(a.split("\t")[3]))
 outfile.close()
 bedgraph.close()
-os.rmdir("tmp"+str(randid)+"/")
+
+plt.style.use('ggplot')
+plt.hist(width_list, 50, facecolor='green', alpha=0.75)
+plt.ylabel('Frequency')
+plt.xlabel('Width of Significant DMRs in BP')
+plt.plot()
+plt.savefig('dmr_width_hist.png', format='png')
+
+os.system("rm -Rf tmp"+str(randid)+"/")
+os.system("rm "+options.bamfile1+"_"+options.bamfile2+"_"+options.context+"_dmr.txt")
 print "BisuKit complete", datetime.now()
