@@ -7,6 +7,7 @@ Notes for BisuKit v0.1.2
 - Updated 2014-05-13 : Tarball added
 - Updated 2014-06-11 : Future updates part of README updated
 - Updated 2016-02-01 : Major updates to script (simplified the pipeline) and same version runningon DE of Cyverse
+- Updated 2016-02-24 : Major bug fix with RPy2 in BisuKit crashing when chromosome.methylKit file empty
 
 1. Summary 
 ==========
@@ -20,10 +21,7 @@ Bug reports and comments are highly appreciated.
 
 2. Building 
 ===========
-```
-tar -zxvf bisukit-0.1.2.tar.gz
-```
-
+You can run this directly from command line using python bisukit.py or using CyVerse Discovery Environment (Reference: TBD)
 Currently the linux x86_64 platform is supported.  
 Email me if you need to run BisuKit on other platforms.
 
@@ -31,7 +29,7 @@ BisuKit requires Python (version check)
 
 These are some of the packages that BisKit requires (links and version to be updated) :
 - RPy2 for Python
-- R
+- R libraries (big.memory, GenomicRanges, data.table)
 
 The files you need in path are not actually BAM files but Context specific methylation extracted files
 http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide_v0.14.4.pdf 
@@ -49,11 +47,11 @@ Options:
 - --genome=GENOME     name and directory of genome fasta file
 - --context=CONTEXT   CpG, CHG or CHH
 - --specie=SPECIE     Specie code, B73, MM9, HG19
-- --cores=CORES       no. of cores to use in running BisKit
+- --cores=CORES
 - -q, --quiet         don't print status messages to stdout
 
-- --bam1=BAMFILE1     name and directory of first bam file generated from bismark for DMR finding
-- --bam2=BAMFILE2     name and directory of second bam file generated from bismark for DMR finding
+- --name1=BAMFILE1     name and directory of first bam file generated from bismark for DMR finding
+- --name2=BAMFILE2     name and directory of second bam file generated from bismark for DMR finding
 
 4. Testing BisuKit
 ==================
