@@ -24,7 +24,11 @@ import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import random
 import matplotlib.pyplot as plt
-        
+
+import matplotlib
+matplotlib.use('Agg')
+
+       
 def complete(text, state):
     return (glob.glob(text+'*')+[None])[state]
 
@@ -154,6 +158,7 @@ class methylkit:
         for a_f in open("tmp"+str(randid)+"/"+str(samname).split(".bam")[0]+"-"+str(chr)+"_bme_top.out", 'r') : 
             if a_f.split("\t")[1] == "+" :
                 large_list[int(float(a_f.split("\t")[3]))][0] += 1
+                ## if there's error from here it's likely the genome version being used for mapping and running bisukit different
             elif a_f.split("\t")[1] == "-" :
                 large_list[int(float(a_f.split("\t")[3]))][1] += 1
         for a_f in open("tmp"+str(randid)+"/"+str(samname).split(".bam")[0]+"-"+str(chr)+"_bme_bottom.out", 'r') : 
@@ -226,6 +231,7 @@ class methylkit:
         robjects.r('''meth=unite(myobj, destrand=FALSE)''')
         robjects.r('''if (nrow(meth) ==0) {write.table(meth,file="nometh.txt")}''')
         if os.path.isfile("nometh.txt") :
+            os.system("rm nometh.txt")
             pass
         else :
             robjects.r('''rm(valid.methylRawObj)''')
@@ -242,7 +248,6 @@ class methylkit:
             difffile = str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_diff_chr"+str(chr)+".txt"
             robjects.r.assign('difffile', difffile)
             robjects.r('''write.table(myDiff, file=difffile, sep="\t", row.names = FALSE, col.names= FALSE,  quote = FALSE)''')
-        os.system("rm nometh.txt")
         os.chdir("..")
         
     @staticmethod
@@ -251,6 +256,7 @@ class methylkit:
         from rpy2.robjects.packages import importr
         eDMRdir = str(os.path.abspath(os.path.dirname(__file__)))+"/R/eDMR_0.5.1.R"
         robjects.r.assign('eDMRdir',eDMRdir)
+        importr('ggplot2')
         robjects.r('''source(eDMRdir)''')
         diff = str("tmp"+randid+"/"+str(file1)+"_"+str(file2)+"_"+str(type)+"_diff_sorted.txt")
         robjects.r.assign('diff', diff)
@@ -337,6 +343,7 @@ del whole_list
 
 print "prep bam1 and bam2", datetime.now()
 for chr in chr_list :
+#for chr in [10,9]:
     jobs = []
     s1 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile1, options.ot1, options.ob1, options.ctot1, options.ctob1, options.context, options.genome, randid, ))
     s2 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile2, options.ot2, options.ob2, options.ctot2, options.ctob2, options.context, options.genome, randid, ))
@@ -351,12 +358,14 @@ os.chdir("tmp"+randid)
 if options.context == "CpG" :
     type = "CG"
 for chr in chr_list :
+#for chr in [10,9]:
     if os.stat(str(options.context)+"_"+options.bamfile1+"_chr"+str(chr)+".methylKit").st_size == 0 or os.stat(str(options.context)+"_"+options.bamfile2+"_chr"+str(chr)+".methylKit").st_size == 0 :
         chr_list.remove(chr)
 os.chdir("..")
 
 print "methylkit start", datetime.now()
 for chr in chr_list :
+#for chr in [10,9]:
     print "methylKit for chr", chr
     methylkit.methylkit(options.bamfile1, options.bamfile2, options.context, chr, options.specie, randid)
 
@@ -364,6 +373,7 @@ for chr in chr_list :
 print "merging methylKit output", datetime.now(), chr_list
 whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.txt", 'w') 
 for chr in chr_list :
+#for chr in [10,9]:
     if os.path.isfile("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt") :
         a = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt", 'r')
         ### remove duplicates and 0 meth
