@@ -6,6 +6,8 @@
 ### Make into Agave App - Jan 29
 ### Addd OT,CTOT,OB,CTOB param - Feb 1
 
+import matplotlib
+matplotlib.use('Agg')
 import os,sys
 import resource
 from optparse import OptionParser,OptionGroup
@@ -311,8 +313,9 @@ total_rounds = (len(chr_list)/int(options.cores))+1
 
 ### write chr sequence into file
 for chr in chr_list :
+#for chr in ["Pt",10] :
     outfile = open("tmp"+str(randid)+"/"+str(chr)+".out", 'w')
-    for a in whole_list[int(chr_order_dict[chr])] :
+    for a in whole_list[int(chr_order_dict[str(chr)])] :
         outfile.write(a)
     outfile.close()
 
@@ -321,6 +324,7 @@ del whole_list
 
 print "prep sample1 and sample2", datetime.now()
 for chr in chr_list :
+#for chr in ["Pt",10] :
     jobs = []
     s1 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile1, options.zedmethratio1, options.context, options.genome, randid, ))
     s2 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile2, options.zedmethratio2, options.context, options.genome, randid, ))
@@ -335,6 +339,7 @@ os.chdir("tmp"+randid)
 if options.context == "CpG" :
     type = "CG"
 for chr in chr_list :
+#for chr in ["Pt",10] :
     if os.stat(str(type)+"_"+options.bamfile1+"_chr"+str(chr)+".methylKit").st_size == 0 or os.stat(str(type)+"_"+options.bamfile2+"_chr"+str(chr)+".methylKit").st_size == 0 :
         chr_list.remove(chr)
 os.chdir("..")
@@ -342,6 +347,7 @@ os.chdir("..")
 print "methylkit start", datetime.now()
 jobs = []
 for chr in chr_list :
+#for chr in ["Pt",10] :
     methylkit.methylkit(options.bamfile1, options.bamfile2, options.context, chr, options.specie, randid)
 
 ### merge meth  
@@ -349,6 +355,7 @@ print "merging methylKit output", datetime.now()
 whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.txt", 'w') 
 
 for chr in chr_list :
+#for chr in ["Pt",10] :
     if os.path.isfile("tmp"+str(randid)+"/"+str((options.bamfile1).split("_")[0])+"_"+str((options.bamfile2).split("_")[0])+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt") :
         a = open("tmp"+str(randid)+"/"+str((options.bamfile1).split("_")[0])+"_"+str((options.bamfile2).split("_")[0])+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt", 'r')
         ### remove duplicates and 0 meth
@@ -387,10 +394,12 @@ outfile.close()
 bedgraph.close()
 
 plt.style.use('ggplot')
+plt.figure()
 plt.hist(width_list, 50, facecolor='green', alpha=0.75)
 plt.ylabel('Frequency')
 plt.xlabel('Width of Significant DMRs in BP')
-plt.plot()
 plt.savefig('dmr_width_hist.png', format='png')
 
-print datetime.now()
+os.system("rm -Rf tmp"+str(randid)+"/")
+os.system("rm "+options.bamfile1+"_"+options.bamfile2+"_"+options.context+"_dmr.txt")
+print "BisuKit complete", datetime.now()
