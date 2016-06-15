@@ -1,8 +1,8 @@
 library(GenomicRanges, quietly=T)
-library(methylKit, quietly=T)
-library(data.table, quietly=T)
+#library(methylKit, quietly=T)
+#library(data.table, quietly=T)
 library(doMC, quietly=T)
-library(ggplot2, quietly=T)
+#library(ggplot2, quietly=T)
 library(mixtools, quietly=T)
 
 # this script use stouffer
@@ -58,6 +58,9 @@ getDMR=function(peaks, allMyDiff, pcutoff=0.1,step=100, DMC.qvalue=0.01, DMC.met
   refine.pk.gr=refine.pk.myD[refine.idx,]
   refine.pk.idx=which(paste(dt.pk.myD$rchr,dt.pk.myD$rstart, dt.pk.myD$rend, sep="_") %in% paste(refine.pk.gr$rchr,refine.pk.gr$rstart, refine.pk.gr$rend, sep="_"))
   maxdist=max(dt.pk.myD[refine.pk.idx, as.integer(rend)-as.integer(rstart)])
+  if (maxdist == -Inf) {
+      maxdist=0
+  }
   print(paste("auto correlation calculation. step:", step, "dist:", maxdist))
   acf=ACF(maxdist,step, allMyDiff)
   res.pk.myD=dt.pk.myD[refine.pk.idx, list(medianmethdiff=median(pmethdiff),
@@ -165,7 +168,8 @@ get.dist.cutoff <- function(mixmdl){
   dist
 }
 
-plotCost=function(mixmdl, ...){
+plotCost=function(mixmdl, imgfile, ...){
+  png(file=imgfile)
   xlim=c(0,ceiling(max(mixmdl$x)))
   f = function(mixmdl,x){
     if(mixmdl$lambda[1]> mixmdl$lambda[2]) {i=1;k=2}
@@ -180,6 +184,7 @@ plotCost=function(mixmdl, ...){
   plot(x,y, type="n",xlab="log 2 distance", ylab="weighted sum of penelty", ...)
   lines(x, y, col="blue", lwd=1.5)
   abline(v=get.break_point(mixmdl), col="red")
+  dev.off()
 }
 
 # DMR
@@ -313,7 +318,6 @@ regionsToDMR=function(region_pvals, myDiffbed, step){
 getPeaks2=function(allMyDiff, pcutoff=0.1, dist=100){
   print("raw myDiff:")
   print(dim(allMyDiff))
-
   myDiff=allMyDiff[allMyDiff$ppvalue<=pcutoff,]
   probes.dist=diff(myDiff$pend)
   print(paste("max cpgs dist for region definition:", dist))
@@ -370,10 +374,15 @@ eDMR.sub=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=2
   myDMR=DMR[,c(1:3,5:7,10,12)]
   if(granges) {
     myDMR.gr=with(myDMR, GRanges(chr, IRanges(as.numeric(start), as.numeric(end)), mean.meth.diff=mean.meth.diff, num.CpGs=num.CpGs, num.DMCs=num.DMCs, DMR.pvalue=DMR.q.pvalue, DMR.qvalue=DMR.q.qvalue))
-    return(myDMR.gr)
+    if (nrow(myDMR) == 0) {
+       print("no DMR found")
+    }   
+    else {
+        return(myDMR.gr)
+    }
   } else {
     return(myDMR)
-  }
+  }  
 }
 
 eDMR=function(myDiff, step=100, dist="none", DMC.qvalue=0.01, DMC.methdiff=25, num.DMCs=1, num.CpGs=3, DMR.methdiff=20, plot=FALSE, main="", mode=1, ACF=TRUE){
