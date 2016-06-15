@@ -70,6 +70,15 @@ and if available
 - --ctob1=CTOB1     path of first complimentary Bottom strand methylation extractor file generated from bismark methylation extractor
 - --ctob2=CTOB2     path of second complimentary Bottom strand methylation extractor file generated from bismark methylation extractor
 
+3a. Running ZedtoBisuKit
+==================
+Use: python zedtobisukit.py 
+
+The only difference between BisuKit and ZedtoBisuKit is the input files (OT1,OT2,OB1,OB2,CTOT1,CTOT2,CTOB1,CTOB2 for BisuKit)
+
+- --zedmethratio1=ZEDMETHRATIO1 Output of sample 1 from running Zed-align methratio.py (in format of $name_methratio.txt)
+- --zedmethratio2=ZEDMETHRATIO2 Output of sample 2 from running Zed-align methratio.py (in format of $name_methratio.txt)
+
 4. Testing BisuKit
 ==================
 To check whether you have all Python dependencies in place,
@@ -77,9 +86,14 @@ To check whether you have all Python dependencies in place,
 python check_dependencies.py
 ```
 
-Typical methylKit/eDMR analysis,
+Typical BisuKit analysis,
 ```
-python bisukit.py --ot1 CpG_OT_293424_GGTAGC_L005_R1_001.fastq_bismark_bt2_pe.txt --ot2 CpG_OT_293426_GTGCTA_L005_R1_001.fastq_bismark_bt2_pe.txt --ob1 CpG_OB_293424_GGTAGC_L005_R1_001.fastq_bismark_bt2_pe.txt --ob2 CpG_OB_293426_GTGCTA_L005_R1_001.fastq_bismark_bt2_pe.txt --genome Zea_mays.AGPv3.23.fa --qvalue 0.01 --dmc 1 --cpg 3 --diffmeth 20 --cores 16 --specie B73 --context CpG --name1 B73_1 --name2 B73_2
+python bisukit.py --name1 B73_1 --name2 B73_2 --ot1 CpG_OT_293424_GGTAGC_L005_R1_001.fastq_bismark_bt2_pe.txt --ot2 CpG_OT_293426_GTGCTA_L005_R1_001.fastq_bismark_bt2_pe.txt --ob1 CpG_OB_293424_GGTAGC_L005_R1_001.fastq_bismark_bt2_pe.txt --ob2 CpG_OB_293426_GTGCTA_L005_R1_001.fastq_bismark_bt2_pe.txt --genome Zea_mays.AGPv3.23.fa --qvalue 0.01 --dmc 1 --cpg 3 --diffmeth 20 --cores 16 --specie B73 --context CpG 
+```
+
+Typical ZedtoBisuKit analysis,
+```
+python zedtobisukit.py --name1 B73_1 --name2 B73_2 --zedmethratio1 B73_test1_methratio.txt --zedmethratio2 B73_test2_methratio.txt --genome Zea_mays.AGPv3.23_without_scaffold.fa --qvalue 0.01 --dmc 1 --cpg 3 --diffmeth 20 --cores 16 --specie B73 --context CpG
 ```
 
 5. License
