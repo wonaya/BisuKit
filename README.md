@@ -8,6 +8,7 @@ Notes for BisuKit v0.1.2
 - Updated 2014-06-11 : Future updates part of README updated
 - Updated 2016-02-01 : Major updates to script (simplified the pipeline) and same version runningon DE of Cyverse
 - Updated 2016-02-24 : Major bug fix with RPy2 in BisuKit crashing when chromosome.methylKit file empty
+- Updated 2016-06-15 : Major update to comply with the version available on CyVerse
 
 1. Summary 
 ==========
@@ -29,7 +30,7 @@ BisuKit requires Python (version check)
 
 These are some of the packages that BisKit requires (links and version to be updated) :
 - RPy2 for Python
-- R libraries (big.memory, GenomicRanges, data.table)
+- R libraries (big.memory, GenomicRanges, data.table, ggplot2)
 
 The files you need in path are not actually BAM files but Context specific methylation extracted files
 http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide_v0.14.4.pdf 
@@ -47,11 +48,27 @@ Options:
 - --genome=GENOME     name and directory of genome fasta file
 - --context=CONTEXT   CpG, CHG or CHH
 - --specie=SPECIE     Specie code, B73, MM9, HG19
-- --cores=CORES
+- --cores=CORES       Number of cores available
 - -q, --quiet         don't print status messages to stdout
 
-- --name1=BAMFILE1     name and directory of first bam file generated from bismark for DMR finding
-- --name2=BAMFILE2     name and directory of second bam file generated from bismark for DMR finding
+- --name1=NAME1 Name for sample 1
+- --name2=NAME2 Name for sample 2
+
+- --ot1=OT1     path of first Top strand methylation extractor file generated from bismark methylation extractor
+- --ot2=OT2     path of second Top strand methylation extractor file generated from bismark methylation extractor
+- --ob1=OB1     path of first Bottom strand methylation extractor file generated from bismark methylation extractor
+- --ob2=OB2     path of second Bottom strand methylation extractor file generated from bismark methylation extractor
+
+- --qvalue=0.01 Q-value of DMRs to filter from all DMRs generated
+- --cpg=3       Minimum number of CpGs in a DMR (default to 3)
+- --dmc=1       Minimum number of Differentially Methylated Cytosines (DMCs) in a DMR (default to 1)
+- --diffmeth=20 Minimum percentage of methylation difference between two samples in a DMR (default to 20)
+
+and if available
+- --ctot1=CTOT1     path of first complimentary Top strand methylation extractor file generated from bismark methylation extractor
+- --ctot2=CTOT2     path of second complimentary Top strand methylation extractor file generated from bismark methylation extractor
+- --ctob1=CTOB1     path of first complimentary Bottom strand methylation extractor file generated from bismark methylation extractor
+- --ctob2=CTOB2     path of second complimentary Bottom strand methylation extractor file generated from bismark methylation extractor
 
 4. Testing BisuKit
 ==================
@@ -62,7 +79,7 @@ python check_dependencies.py
 
 Typical methylKit/eDMR analysis,
 ```
-python bisukit.py --genome HG19.fa --context CpG --cores 12 --bam1 SRR641618_unsorted.bam --bam2 SRR641628_unsorted.bam --specie HG19
+python bisukit.py --ot1 CpG_OT_293424_GGTAGC_L005_R1_001.fastq_bismark_bt2_pe.txt --ot2 CpG_OT_293426_GTGCTA_L005_R1_001.fastq_bismark_bt2_pe.txt --ob1 CpG_OB_293424_GGTAGC_L005_R1_001.fastq_bismark_bt2_pe.txt --ob2 CpG_OB_293426_GTGCTA_L005_R1_001.fastq_bismark_bt2_pe.txt --genome Zea_mays.AGPv3.23.fa --qvalue 0.01 --dmc 1 --cpg 3 --diffmeth 20 --cores 16 --specie B73 --context CpG --name1 B73_1 --name2 B73_2
 ```
 
 5. License
@@ -78,6 +95,7 @@ python bisukit.py --genome HG19.fa --context CpG --cores 12 --bam1 SRR641618_uns
 6. Revision history
 ====================
 
+- 0.1.2 (15 June 2016)
 - 0.1.2 (1 February 2016)
 - 0.1a (10 February 2014)  
         - first release
@@ -88,4 +106,5 @@ python bisukit.py --genome HG19.fa --context CpG --cores 12 --bam1 SRR641618_uns
 
 8. Future updates
 =======
-
+- Add more graphical output .bigWig or .circos
+- Add GSNAP compatibility
