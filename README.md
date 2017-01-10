@@ -9,6 +9,7 @@ Notes for BisuKit v0.1.2
 - Updated 2016-02-01 : Major updates to script (simplified the pipeline) and same version runningon DE of Cyverse
 - Updated 2016-02-24 : Major bug fix with RPy2 in BisuKit crashing when chromosome.methylKit file empty
 - Updated 2016-06-15 : Major update to comply with the version available on CyVerse
+- Updated 2017-01-10 : Citation updated
 
 1. Summary 
 ==========
@@ -26,7 +27,7 @@ You can run this directly from command line using python bisukit.py or using CyV
 Currently the linux x86_64 platform is supported.  
 Email me if you need to run BisuKit on other platforms.
 
-BisuKit requires Python (version check)
+BisuKit requires Python 2.7.9
 
 These are some of the packages that BisKit requires (links and version to be updated) :
 - RPy2 for Python
@@ -109,6 +110,7 @@ python zedtobisukit.py --name1 B73_1 --name2 B73_2 --zedmethratio1 B73_test1_met
 6. Revision history
 ====================
 
+- 0.2 (10 January 2017)
 - 0.1.2 (15 June 2016)
 - 0.1.2 (1 February 2016)
 - 0.1a (10 February 2014)  
