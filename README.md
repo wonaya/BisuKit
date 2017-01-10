@@ -118,7 +118,8 @@ python zedtobisukit.py --name1 B73_1 --name2 B73_2 --zedmethratio1 B73_test1_met
 
 7. FAQ
 =======
-
+Q: How do I cite BisuKit (Zedtobisukit)? 
+A: Song, J., Zynda, G., Beck, S., Springer, N.M., and Vaughn, M.W. 2016. Bisulfite sequence analyses using CyVerse discovery environment: From mapping to DMRs. Curr. Protoc. Plant Biol. 1:510-529. doi: 10.1002/cppb.20034
 
 8. Future updates
 =======
