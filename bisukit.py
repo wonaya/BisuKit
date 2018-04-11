@@ -6,6 +6,8 @@
 ### Make into Agave App - Jan 29
 ### Addd OT,CTOT,OB,CTOB param - Feb 1
 
+import matplotlib
+matplotlib.use('Agg')
 import os,sys
 import resource
 from optparse import OptionParser,OptionGroup
@@ -24,10 +26,6 @@ import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import random
 import matplotlib.pyplot as plt
-
-import matplotlib
-matplotlib.use('Agg')
-
        
 def complete(text, state):
     return (glob.glob(text+'*')+[None])[state]
@@ -131,7 +129,7 @@ class methylkit:
         
         ### write into separate split into the list top and bottom
         print chr, "writing chr separate bme file", datetime.now()
-        context_file = open("tmp"+str(randid)+"/"+str(samname)+"-"+str(chr)+"_bme_top.out",'w')
+        context_file = open("tmp"+str(randid)+"/"+str(samname).split(".bam")[0]+"-"+str(chr)+"_bme_top.out",'w')
         for a_f in open(ot, 'r') :
             if len(a_f.split("\t")) > 2 and a_f.split("\t")[2] == chrid+str(chr) :
                 context_file.write(a_f)
@@ -140,7 +138,7 @@ class methylkit:
                 if len(a_f.split("\t")) > 2 and a_f.split("\t")[2] == chrid+str(chr) :
                     context_file.write(a_f)
         context_file.close()
-        context_file = open("tmp"+str(randid)+"/"+str(samname)+"-"+str(chr)+"_bme_bottom.out",'w')
+        context_file = open("tmp"+str(randid)+"/"+str(samname).split(".bam")[0]+"-"+str(chr)+"_bme_bottom.out",'w')
         for a_f in open(ob, 'r') :
             if len(a_f.split("\t")) > 2  and a_f.split("\t")[2] == chrid+str(chr) :
                 context_file.write(a_f)
@@ -152,7 +150,7 @@ class methylkit:
         
         print chr, "making large list", datetime.now(), max_cg_val
         large_list = np.zeros((max_cg_val,4))
-        outfile = open("tmp"+str(randid)+"/"+str(context)+"_"+str(samname)+"_chr"+str(chr)+".methylKit" ,'w')
+        outfile = open("tmp"+str(randid)+"/"+str(context)+"_"+str(samname).split(".bam")[0]+"_chr"+str(chr)+".methylKit" ,'w')
         
         print chr, "reading cytosine positions", datetime.now()
         for a_f in open("tmp"+str(randid)+"/"+str(samname).split(".bam")[0]+"-"+str(chr)+"_bme_top.out", 'r') : 
@@ -413,10 +411,10 @@ outfile.close()
 bedgraph.close()
 
 plt.style.use('ggplot')
+plt.figure()
 plt.hist(width_list, 50, facecolor='green', alpha=0.75)
 plt.ylabel('Frequency')
 plt.xlabel('Width of Significant DMRs in BP')
-plt.plot()
 plt.savefig('dmr_width_hist.png', format='png')
 
 os.system("rm -Rf tmp"+str(randid)+"/")
