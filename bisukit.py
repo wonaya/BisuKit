@@ -199,7 +199,7 @@ class methylkit:
         importr('GenomicRanges')
         importr('bigmemory')
         importr('data.table')
-        #importr('methylKit')
+        importr('methylKit')
         basedir = str(os.path.abspath(os.path.dirname(__file__)))+"/R/base.R"
         robjects.r.assign('basedir',basedir)
         robjects.r('''source(basedir)''')
