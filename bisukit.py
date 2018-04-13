@@ -259,6 +259,7 @@ class methylkit:
         diff = str("tmp"+randid+"/"+str(file1)+"_"+str(file2)+"_"+str(type)+"_diff_sorted.txt")
         robjects.r.assign('diff', diff)
         robjects.r('''myDiff=read.table(diff, header=TRUE)''')
+        robjects.r('''options(bitmapType='cairo')''')
         robjects.r('''png(file="bimodaldistribution.png", type="cairo")''')
         robjects.r('''myMixmdl=myDiff.to.mixmdl(myDiff, plot=T, main="example")''')
         robjects.r('''dev.off()''')
