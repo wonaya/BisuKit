@@ -5,6 +5,7 @@
 ### tmp into random number generate - Jan 28
 ### Make into Agave App - Jan 29
 ### Addd OT,CTOT,OB,CTOB param - Feb 1
+### Removed PNG functionalities for Docker - Apr 13 2018
 
 import matplotlib
 matplotlib.use('Agg')
