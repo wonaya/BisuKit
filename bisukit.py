@@ -263,7 +263,8 @@ class methylkit:
         robjects.r('''pdf(file="bimodaldistribution.pdf")''')
         robjects.r('''myMixmdl=myDiff.to.mixmdl(myDiff, plot=T, main="example")''')
         robjects.r('''dev.off()''')
-        robjects.r('''plotcost=plotCost(myMixmdl,imgfile="costfunction.png",main="cost function")''')
+        #robjects.r('''plotcost=plotCost(myMixmdl,imgfile="costfunction.png",main="cost function")''')
+         robjects.r('''plotcost=plotCost(myMixmdl,imgfile="costfunction.pdf",main="cost function")''')
         robjects.r('''mydmr=eDMR(myDiff, mode=1, ACF=TRUE)''')
         robjects.r('''mydmr.df =as.data.frame(mydmr)''')
         outfile = str(file1)+"_"+str(file2)+"_"+str(type)+"_dmr.txt"
