@@ -6,6 +6,7 @@
 ### Make into Agave App - Jan 29
 ### Addd OT,CTOT,OB,CTOB param - Feb 1
 ### Removed PNG functionalities for Docker - Apr 13 2018
+### Support for non-numerical chromosomes - Dec 20 2018
 
 import matplotlib
 matplotlib.use('Agg')
@@ -63,7 +64,8 @@ class setup :
 
 class methylkit:
     @staticmethod
-    def prep_methylkit(chr, samname, ot, ob, ctot, ctob, context, genomefile, randid) :
+    #def prep_methylkit(chr, samname, ot, ob, ctot, ctob, context, genomefile, randid) :
+    def prep_methylkit(chr, samname, context, genomefile, randid) :
         import bisect
         ### get rid of cycles and deal with one chr at a time?
         
@@ -118,6 +120,12 @@ class methylkit:
             cg_loc_file.write(str(pos)+"\n")
         cg_loc_file.close()
         ### check chr or chr+chr
+        
+        ot = context+"_OT_"+samname.strip(".bam")+".txt"
+        ob = context+"_OB_"+samname.strip(".bam")+".txt"
+        ctot = context+"_CTOT_"+samname.strip(".bam")+".txt"
+        ctob = context+"_CTOB_"+samname.strip(".bam")+".txt"
+        
         fp = open(ot)
         for i, line in enumerate(fp):
             if i == 2:
@@ -127,14 +135,15 @@ class methylkit:
                     chrid = ""
                 break
         fp.close()
-        
         ### write into separate split into the list top and bottom
         print chr, "writing chr separate bme file", datetime.now()
+        
         context_file = open("tmp"+str(randid)+"/"+str(samname).split(".bam")[0]+"-"+str(chr)+"_bme_top.out",'w')
         for a_f in open(ot, 'r') :
             if len(a_f.split("\t")) > 2 and a_f.split("\t")[2] == chrid+str(chr) :
                 context_file.write(a_f)
-        if ctot != None :
+        #if ctot != None :
+        if os.path.isfile(ctot) == True :
             for a_f in open(ctot, 'r') :
                 if len(a_f.split("\t")) > 2 and a_f.split("\t")[2] == chrid+str(chr) :
                     context_file.write(a_f)
@@ -143,7 +152,8 @@ class methylkit:
         for a_f in open(ob, 'r') :
             if len(a_f.split("\t")) > 2  and a_f.split("\t")[2] == chrid+str(chr) :
                 context_file.write(a_f)
-        if ctob != None :
+        #if ctob != None :
+        if os.path.isfile(ctob) == True :
             for a_f in open(ctob, 'r') :
                 if len(a_f.split("\t")) > 2 and a_f.split("\t")[2] == chrid+str(chr) :
                     context_file.write(a_f)
@@ -284,14 +294,14 @@ parser.add_option_group(mkgroup)
 mkgroup.add_option("--cores", dest="cores", help="no. of cores to use in running BisKit")
 mkgroup.add_option("--name1", dest="bamfile1", help="name of sample 1")
 mkgroup.add_option("--name2", dest="bamfile2", help="name of sample 2")
-mkgroup.add_option("--ot1", dest="ot1", help="path of first Top strand methylation extractor file generated from bismark methylation extractor")
-mkgroup.add_option("--ob1", dest="ob1", help="path of first Bottom strand methylation extractor file generated from bismark methylation extractor")
-mkgroup.add_option("--ot2", dest="ot2", help="path of second Top strand methylation extractor file generated from bismark methylation extractor")
-mkgroup.add_option("--ob2", dest="ob2", help="path of second Bottom strand methylation extractor file generated from bismark methylation extractor")
-mkgroup.add_option("--ctot1", dest="ctot1", help="path of first complimentary Top strand methylation extractor file generated from bismark methylation extractor", default=None)
-mkgroup.add_option("--ctob1", dest="ctob1", help="path of first complimentary Bottom strand methylation extractor file generated from bismark methylation extractor", default=None)
-mkgroup.add_option("--ctot2", dest="ctot2", help="path of second complimentary Top strand methylation extractor file generated from bismark methylation extractor", default=None)
-mkgroup.add_option("--ctob2", dest="ctob2", help="path of second complimentary Bottom strand methylation extractor file generated from bismark methylation extractor", default=None)
+#mkgroup.add_option("--ot1", dest="ot1", help="path of first Top strand methylation extractor file generated from bismark methylation extractor")
+#mkgroup.add_option("--ob1", dest="ob1", help="path of first Bottom strand methylation extractor file generated from bismark methylation extractor")
+#mkgroup.add_option("--ot2", dest="ot2", help="path of second Top strand methylation extractor file generated from bismark methylation extractor")
+#mkgroup.add_option("--ob2", dest="ob2", help="path of second Bottom strand methylation extractor file generated from bismark methylation extractor")
+#mkgroup.add_option("--ctot1", dest="ctot1", help="path of first complimentary Top strand methylation extractor file generated from bismark methylation extractor", default=None)
+#mkgroup.add_option("--ctob1", dest="ctob1", help="path of first complimentary Bottom strand methylation extractor file generated from bismark methylation extractor", default=None)
+#mkgroup.add_option("--ctot2", dest="ctot2", help="path of second complimentary Top strand methylation extractor file generated from bismark methylation extractor", default=None)
+#mkgroup.add_option("--ctob2", dest="ctob2", help="path of second complimentary Bottom strand methylation extractor file generated from bismark methylation extractor", default=None)
 mkgroup.add_option("--dmc", dest="dmc", help="Theshold DMC count to filter DMRs, default = 1", default=1)
 mkgroup.add_option("--cpg", dest="cpg", help="No. of CpG in a DMR, default = 3", default=3)
 mkgroup.add_option("--qvalue", dest="qvalue", help="Q-value of DMRs to print", default=0.05)
@@ -309,14 +319,16 @@ print "BisuKit starting up", datetime.now()
 
 setup.check_cores(int(options.cores))
 cores = int(options.cores)
-chr_list = setup.get_genome_size(options.genome)[1]
+#chr_list = setup.get_genome_size(options.genome)[1]
 genome_list = []
 whole_list = []
 chr_list = []
 chr_order_dict = {}
 start = 0
+
 for genome in open(options.genome, 'r') :
     if genome[0] == ">" :
+        print genome
         if len(chr_list) == 0 :
             chr_list.append(genome.split(" dna")[0][1:])
             chr_order_dict[genome.split(" dna")[0][1:]] = start
@@ -328,11 +340,12 @@ for genome in open(options.genome, 'r') :
             genome_list = []
     else :
         genome_list.append(genome.strip("\n"))
-
 whole_list.append("".join(genome_list))
 del genome_list
 total_rounds = (len(chr_list)/int(options.cores))+1
+print "written chr into memory"
 
+chr_list = ["21", "22"]
 ### write chr sequence into file
 for chr in chr_list :
     outfile = open("tmp"+str(randid)+"/"+str(chr)+".out", 'w')
@@ -344,10 +357,11 @@ del whole_list
 
 print "prep bam1 and bam2", datetime.now()
 for chr in chr_list :
-#for chr in [10,9]:
     jobs = []
-    s1 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile1, options.ot1, options.ob1, options.ctot1, options.ctob1, options.context, options.genome, randid, ))
-    s2 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile2, options.ot2, options.ob2, options.ctot2, options.ctob2, options.context, options.genome, randid, ))
+    #s1 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile1, options.ot1, options.ob1, options.ctot1, options.ctob1, options.context, options.genome, randid, ))
+    s1 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile1, options.context, options.genome, randid, ))
+    #s2 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile2, options.ot2, options.ob2, options.ctot2, options.ctob2, options.context, options.genome, randid, ))
+    s2 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile2, options.context, options.genome, randid, ))
     jobs.append(s1)
     jobs.append(s2)
     s1.start()
@@ -359,8 +373,7 @@ os.chdir("tmp"+randid)
 if options.context == "CpG" :
     type = "CG"
 for chr in chr_list :
-#for chr in [10,9]:
-    if os.stat(str(options.context)+"_"+options.bamfile1+"_chr"+str(chr)+".methylKit").st_size == 0 or os.stat(str(options.context)+"_"+options.bamfile2+"_chr"+str(chr)+".methylKit").st_size == 0 :
+    if os.stat(str(options.context)+"_"+options.bamfile1.strip(".bam")+"_chr"+str(chr)+".methylKit").st_size == 0 or os.stat(str(options.context)+"_"+options.bamfile2.strip(".bam")+"_chr"+str(chr)+".methylKit").st_size == 0 :
         chr_list.remove(chr)
 os.chdir("..")
 
@@ -370,11 +383,11 @@ for chr in chr_list :
     print "methylKit for chr", chr
     methylkit.methylkit(options.bamfile1, options.bamfile2, options.context, chr, options.specie, randid)
 
+sys.exit()
 ### merge meth  
 print "merging methylKit output", datetime.now(), chr_list
 whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.txt", 'w') 
 for chr in chr_list :
-#for chr in [10,9]:
     if os.path.isfile("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt") :
         a = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt", 'r')
         ### remove duplicates and 0 meth
