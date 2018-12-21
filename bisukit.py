@@ -255,7 +255,7 @@ class methylkit:
             os.system("mv "+str(type)+"_chr"+str(chr)+"_methylationstat.pdf ../.")
             if type == "CG" :
                 type = "CpG"
-            difffile = str(file1ID)+"_"+str(file2ID)+"_"+str(type)+"_diff_chr"+str(chr)+".txt"
+            difffile = str(file1ID).strip(".bam")+"_"+str(file2ID).strip(".bam")+"_"+str(type)+"_diff_chr"+str(chr)+".txt"
             robjects.r.assign('difffile', difffile)
             robjects.r('''write.table(myDiff, file=difffile, sep="\t", row.names = FALSE, col.names= FALSE,  quote = FALSE)''')
         os.chdir("..")
@@ -346,7 +346,7 @@ del genome_list
 total_rounds = (len(chr_list)/int(options.cores))+1
 print "written chr into memory"
 
-chr_list = ["21", "22"]
+chr_list = ["22"]
 ### write chr sequence into file
 for chr in chr_list :
     outfile = open("tmp"+str(randid)+"/"+str(chr)+".out", 'w')
@@ -380,11 +380,9 @@ os.chdir("..")
 
 print "methylkit start", datetime.now()
 for chr in chr_list :
-#for chr in [10,9]:
     print "methylKit for chr", chr
     methylkit.methylkit(options.bamfile1, options.bamfile2, options.context, chr, options.specie, randid)
 
-sys.exit()
 ### merge meth  
 print "merging methylKit output", datetime.now(), chr_list
 whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.txt", 'w') 
