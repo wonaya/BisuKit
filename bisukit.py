@@ -225,8 +225,6 @@ class methylkit:
         file2name = str(type)+"_"+file2.strip(".bam")+"_chr"+str(chr)+".methylKit"
         file2ID = file2
         filelist = [file1name, file2name]
-        print filelist, file1, file2
-        sys.exit()
         file3name = str(type)+"_chr"+str(chr)+"_methylationstat.pdf"
         robjects.r.assign('rfilelist',filelist)
         robjects.r.assign('type', type)
