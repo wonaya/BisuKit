@@ -219,9 +219,9 @@ class methylkit:
         robjects.r('''source(diffdir)''')
         filelist = [file1, file2]
         os.chdir("tmp"+str(randid)+"/")
-        file1name = str(type)+"_"+file1+"_chr"+str(chr)+".methylKit"
+        file1name = str(type)+"_"+file1.strip(".bam")+"_chr"+str(chr)+".methylKit"
         file1ID = file1
-        file2name = str(type)+"_"+file2+"_chr"+str(chr)+".methylKit"
+        file2name = str(type)+"_"+file2.strip(".bam")+"_chr"+str(chr)+".methylKit"
         file2ID = file2
         filelist = [file1name, file2name]
         file3name = str(type)+"_chr"+str(chr)+"_methylationstat.pdf"
