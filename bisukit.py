@@ -270,6 +270,7 @@ class methylkit:
         robjects.r('''source(eDMRdir)''')
         diff = str("tmp"+randid+"/"+str(file1)+"_"+str(file2)+"_"+str(type)+"_diff_sorted.txt")
         robjects.r.assign('diff', diff)
+        print diff
         robjects.r('''myDiff=read.table(diff, header=TRUE)''')
         #robjects.r('''png(file="bimodaldistribution.png", type="cairo")''')
         #robjects.r('''pdf(file="bimodaldistribution.pdf")''')
