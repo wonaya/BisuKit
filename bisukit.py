@@ -268,19 +268,19 @@ class methylkit:
         robjects.r.assign('eDMRdir',eDMRdir)
         importr('ggplot2')
         robjects.r('''source(eDMRdir)''')
-        diff = str("tmp"+randid+"/"+str(file1)+"_"+str(file2)+"_"+str(type)+"_diff_sorted.txt")
+        diff = str("tmp"+randid+"/"+str(file1).strip(".bam")+"_"+str(file2).strip(".bam")+"_"+str(type)+"_diff_sorted.txt")
         robjects.r.assign('diff', diff)
         print diff
         robjects.r('''myDiff=read.table(diff, header=TRUE)''')
-        #robjects.r('''png(file="bimodaldistribution.png", type="cairo")''')
-        #robjects.r('''pdf(file="bimodaldistribution.pdf")''')
-        #robjects.r('''myMixmdl=myDiff.to.mixmdl(myDiff, plot=T, main="example")''')
-        #robjects.r('''dev.off()''')
+        robjects.r('''png(file="bimodaldistribution.png", type="cairo")''')
+        robjects.r('''pdf(file="bimodaldistribution.pdf")''')
+        robjects.r('''myMixmdl=myDiff.to.mixmdl(myDiff, plot=T, main="example")''')
+        robjects.r('''dev.off()''')
         #robjects.r('''plotcost=plotCost(myMixmdl,imgfile="costfunction.png",main="cost function")''')
         #robjects.r('''plotcost=plotCost(myMixmdl,imgfile="costfunction.pdf",main="cost function")''')
         robjects.r('''mydmr=eDMR(myDiff, mode=1, ACF=TRUE)''')
         robjects.r('''mydmr.df =as.data.frame(mydmr)''')
-        outfile = str(file1)+"_"+str(file2)+"_"+str(type)+"_dmr.txt"
+        outfile = str(file1).strip(".bam")+"_"+str(file2).strip(".bam")+"_"+str(type)+"_dmr.txt"
         robjects.r.assign('outfile', outfile)
         robjects.r('''write.table(mydmr.df, file=outfile, sep="\t",quote = FALSE, row.names=FALSE,col.names=FALSE)''')           
 
