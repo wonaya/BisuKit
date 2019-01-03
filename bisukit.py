@@ -296,14 +296,6 @@ parser.add_option_group(mkgroup)
 mkgroup.add_option("--cores", dest="cores", help="no. of cores to use in running BisKit")
 mkgroup.add_option("--name1", dest="bamfile1", help="name of sample 1")
 mkgroup.add_option("--name2", dest="bamfile2", help="name of sample 2")
-#mkgroup.add_option("--ot1", dest="ot1", help="path of first Top strand methylation extractor file generated from bismark methylation extractor")
-#mkgroup.add_option("--ob1", dest="ob1", help="path of first Bottom strand methylation extractor file generated from bismark methylation extractor")
-#mkgroup.add_option("--ot2", dest="ot2", help="path of second Top strand methylation extractor file generated from bismark methylation extractor")
-#mkgroup.add_option("--ob2", dest="ob2", help="path of second Bottom strand methylation extractor file generated from bismark methylation extractor")
-#mkgroup.add_option("--ctot1", dest="ctot1", help="path of first complimentary Top strand methylation extractor file generated from bismark methylation extractor", default=None)
-#mkgroup.add_option("--ctob1", dest="ctob1", help="path of first complimentary Bottom strand methylation extractor file generated from bismark methylation extractor", default=None)
-#mkgroup.add_option("--ctot2", dest="ctot2", help="path of second complimentary Top strand methylation extractor file generated from bismark methylation extractor", default=None)
-#mkgroup.add_option("--ctob2", dest="ctob2", help="path of second complimentary Bottom strand methylation extractor file generated from bismark methylation extractor", default=None)
 mkgroup.add_option("--dmc", dest="dmc", help="Theshold DMC count to filter DMRs, default = 1", default=1)
 mkgroup.add_option("--cpg", dest="cpg", help="No. of CpG in a DMR, default = 3", default=3)
 mkgroup.add_option("--qvalue", dest="qvalue", help="Q-value of DMRs to print", default=0.05)
@@ -347,7 +339,6 @@ del genome_list
 total_rounds = (len(chr_list)/int(options.cores))+1
 print "written chr into memory"
 
-chr_list = ["22"]
 ### write chr sequence into file
 for chr in chr_list :
     outfile = open("tmp"+str(randid)+"/"+str(chr)+".out", 'w')
@@ -360,9 +351,7 @@ del whole_list
 print "prep bam1 and bam2", datetime.now()
 for chr in chr_list :
     jobs = []
-    #s1 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile1, options.ot1, options.ob1, options.ctot1, options.ctob1, options.context, options.genome, randid, ))
     s1 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile1, options.context, options.genome, randid, ))
-    #s2 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile2, options.ot2, options.ob2, options.ctot2, options.ctob2, options.context, options.genome, randid, ))
     s2 = multiprocessing.Process(target=methylkit.prep_methylkit, args=(chr, options.bamfile2, options.context, options.genome, randid, ))
     jobs.append(s1)
     jobs.append(s2)
