@@ -396,24 +396,24 @@ for chr in chr_list :
             if float(line.split("\t")[-1].strip("\n")) != 0 :
                 whole_meth_file.write(line)
 whole_meth_file.close()
-sys.exit()
-os.system("sort -nk1 -nk2 tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.txt > tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.sorted.txt")
-whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_sorted.txt", 'w') 
+
+os.system("sort -nk1 -nk2 tmp"+str(randid)+"/"+str((options.bamfile1).strip(".bam"))+"_"+str((options.bamfile2).strip(".bam"))+"_"+str(options.context)+"_diff.txt > tmp"+str(randid)+"/"+str((options.bamfile1).strip(".bam"))+"_"+str((options.bamfile2).strip(".bam"))+"_"+str(options.context)+"_diff.sorted.txt")
+whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1).strip(".bam"))+"_"+str((options.bamfile2).strip(".bam"))+"_"+str(options.context)+"_diff_sorted.txt", 'w') 
 whole_meth_file.write("chr\tstart\tend\tstrand\tpvalue\tqvalue\tmeth.diff\n")
-for a in open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.sorted.txt",'r'):
+for a in open("tmp"+str(randid)+"/"+str((options.bamfile1).strip(".bam"))+"_"+str((options.bamfile2).strip(".bam"))+"_"+str(options.context)+"_diff.sorted.txt",'r'):
     whole_meth_file.write(a)
 whole_meth_file.close()
 
 print "running eDMR", datetime.now()
 methylkit.eDMR(options.bamfile1, options.bamfile2, options.context, options.dmc, options.cpg, options.diffmeth, options.qvalue, randid)
-afile = open((options.bamfile1)+"_"+(options.bamfile2)+"_"+options.context+"_dmr.txt", 'r')
+afile = open((options.bamfile1).strip(".bam")+"_"+(options.bamfile2).strip(".bam")+"_"+options.context+"_dmr.txt", 'r')
 alines = afile.readlines()
 if alines[0].strip("\n") == "no DMR found" :
     print "no DMR found"
     os.system("rm -Rf tmp"+str(randid)+"/")
     sys.exit()
-bedgraph = open((options.bamfile1)+"_"+(options.bamfile2)+"_"+options.context+"_DMR.bedGraph", 'w')
-outfile = open((options.bamfile1)+"_"+(options.bamfile2)+"_"+options.context+"_DMR.txt", 'w')
+bedgraph = open((options.bamfile1).strip(".bam")+"_"+(options.bamfile2).strip(".bam")+"_"+options.context+"_DMR.bedGraph", 'w')
+outfile = open((options.bamfile1).strip(".bam")+"_"+(options.bamfile2).strip(".bam")+"_"+options.context+"_DMR.txt", 'w')
 outfile.write("chr\tstart\tend\twidth\tstrand\tmean.meth.diff\tnum.CpGs\tnum.DMCs\tDMR.pvalue\tDMR.qvalue\n")
 width_list=[]
 for a in alines[1:] :
@@ -434,5 +434,5 @@ plt.xlabel('Width of Significant DMRs in BP')
 plt.savefig('dmr_width_hist.png', format='png')
 
 os.system("rm -Rf tmp"+str(randid)+"/")
-os.system("rm "+options.bamfile1+"_"+options.bamfile2+"_"+options.context+"_dmr.txt")
+os.system("rm "+options.bamfile1.strip(".bam")+"_"+options.bamfile2.strip(".bam")+"_"+options.context+"_dmr.txt")
 print "BisuKit complete", datetime.now()
