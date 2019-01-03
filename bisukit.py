@@ -386,17 +386,17 @@ for chr in chr_list :
 
 ### merge meth  
 print "merging methylKit output", datetime.now(), chr_list
-whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.txt", 'w') 
+whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1).strip(".bam"))+"_"+str((options.bamfile2).strip(".bam"))+"_"+str(options.context)+"_diff.txt", 'w') 
 for chr in chr_list :
-    if os.path.isfile("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt") :
-        a = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt", 'r')
+    if os.path.isfile("tmp"+str(randid)+"/"+str((options.bamfile1).strip(".bam"))+"_"+str((options.bamfile2).strip(".bam"))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt") :
+        a = open("tmp"+str(randid)+"/"+str((options.bamfile1).strip(".bam"))+"_"+str((options.bamfile2).strip(".bam"))+"_"+str(options.context)+"_diff_chr"+str(chr)+".txt", 'r')
         ### remove duplicates and 0 meth
         alines = a.readlines()
         for line in set(alines) :
             if float(line.split("\t")[-1].strip("\n")) != 0 :
                 whole_meth_file.write(line)
 whole_meth_file.close()
-
+sys.exit()
 os.system("sort -nk1 -nk2 tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.txt > tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff.sorted.txt")
 whole_meth_file = open("tmp"+str(randid)+"/"+str((options.bamfile1))+"_"+str((options.bamfile2))+"_"+str(options.context)+"_diff_sorted.txt", 'w') 
 whole_meth_file.write("chr\tstart\tend\tstrand\tpvalue\tqvalue\tmeth.diff\n")
