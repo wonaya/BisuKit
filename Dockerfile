@@ -28,7 +28,7 @@ RUN apt-get update;\
 # Make directory
 RUN mkdir -p /home/bisukit
 WORKDIR /home/bisukit
-COPY . /home/bisukit
+#COPY . /home/bisukit
 
 # Executable
 ADD https://github.com/wonaya/BisuKit/raw/master/R.tar.gz /home/bisukit
