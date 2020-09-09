@@ -63,6 +63,11 @@ class setup :
             print "Please reduce the no. of cores"
             sys.exit()
 
+class distance:
+    @staticmethod
+    def getdistancecg(chr, samname, context, genomefile, randid) :
+        
+            
 class methylkit:
     @staticmethod
     #def prep_methylkit(chr, samname, ot, ob, ctot, ctob, context, genomefile, randid) :
