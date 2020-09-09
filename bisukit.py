@@ -67,6 +67,7 @@ class distance:
     @staticmethod
     def getdistancecg(chr, samname, context, genomefile, randid) :
         
+        
             
 class methylkit:
     @staticmethod
@@ -365,6 +366,7 @@ for chr in chr_list :
     s2.start()
     [x.join() for x in jobs]
 
+sys.exit()
 ### resetting chr_list
 os.chdir("tmp"+randid)
 if options.context == "CpG" :
