@@ -97,6 +97,11 @@ Typical ZedtoBisuKit analysis,
 ```
 python zedtobisukit.py --name1 B73_1 --name2 B73_2 --zedmethratio1 B73_test1_methratio.txt --zedmethratio2 B73_test2_methratio.txt --genome Zea_mays.AGPv3.23_without_scaffold.fa --qvalue 0.01 --dmc 1 --cpg 3 --diffmeth 20 --cores 16 --specie B73 --context CpG
 ```
+Docker Usage,
+
+```
+docker run -v $PWD:/home/bisukit bisukit --context CpG --genome TAIR_4.fa --cores=8 --specie AT --name1=sample1 --name2=sample2
+```
 
 5. License
 ===========
